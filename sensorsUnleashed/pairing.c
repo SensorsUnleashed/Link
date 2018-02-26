@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include "net/ipv6/uip.h"
 #include "lib/memb.h"
+#include "rpl.h"
 #include "susensors.h"
 
 #define DEBUG 1
@@ -73,6 +74,35 @@ static uint8_t buffer[BUFFERSIZE] __attribute__ ((aligned (4))) = { 0 };
 static uint32_t bufsize = 0;
 
 MEMB(pairings, joinpair_t, 20);
+
+
+static int addPrefix(uip_ip6addr_t* ip6addr){
+	uip_ipaddr_t *prefix = NULL;
+	uint8_t pl = 0;
+
+	if(!curr_instance.used && curr_instance.dag.prefix_info.length == 0) {
+		return -1;
+	}
+
+	prefix = &curr_instance.dag.prefix_info.prefix;
+	pl = curr_instance.dag.prefix_info.length;
+
+	int i = 0;
+	do{
+        if(pl >= 8){
+        	ip6addr->u8[i] = prefix->u8[i];
+        	pl -= 8;
+        }
+        else{
+        	ip6addr->u8[i] &= (0xff >> pl);		//Clear whats on the prefix bits place (Shouldn't be anything)
+        	ip6addr->u8[i] |= prefix->u8[i];	//Add the last part of the prefix
+            pl = 0;
+        }
+        i++;
+	}while(pl);
+
+	return 0;
+}
 
 //Return 0 if data was stored
 //Return 1 if there was no more space
@@ -238,22 +268,39 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 // 3 = Unable to parse the triggers
 // 4 = src_uri could not be parsed
 // 5 = Unable to allocate enough dynamic memory
+// 6 = Unable to get the prefix, so not possible to pair
 
 uint8_t parseMessage(joinpair_t* pair){
 
-	uint32_t stringlen = 100;
+	uint32_t stringlen;
 	char stringbuf[100];
 	uint8_t* payload = &buffer[0];
 	uint32_t bufindex = 0;
 
 	memset(stringbuf, 0, 100);
 
-	//Decode the IP address
-	if(cp_decodeU16Array((uint8_t*) payload + bufindex, (uint16_t*)&pair->destip, &bufindex) != 0){
+	/*
+	 * Decode the IP address
+	 * 	To save space, and allow sensors to be moved into other address spaces
+	 * 	the configurator can chose to send only the suffix, meaning the prefix
+	 * 	has to be added.
+	 * 	If the array was 16 bytes its an entire ip address, otherwise its suffix
+	 * 	only
+	 * */
+	stringlen = cp_decodeU16Array((uint8_t*) payload + bufindex, (uint16_t*)&pair->destip, &bufindex);
+	stringlen *= 2;	//We work as 8bit
+	if(stringlen < 0){
 		return 1;
+	}
+	else if(stringlen < 16){
+		//Move the suffix to the other end of the address.
+		//TODO: This should be made smarter.
+		memcpy(&pair->destip.u8[16-stringlen], &pair->destip.u8[0], stringlen);
+		addPrefix(&pair->destip);
 	}
 
 	//Decode the URL of the device
+	stringlen = 100;
 	if(cp_decode_string((uint8_t*) payload + bufindex, &stringbuf[0], &stringlen, &bufindex) != 0){
 		return 2;
 	}
@@ -297,6 +344,7 @@ uint8_t parseMessage(joinpair_t* pair){
 	memcpy((char*)MMEM_PTR(&pair->srcurl), (char*)stringbuf, stringlen);
 
 	pair->deviceptr = 0;
+	pair->triggerindex = aboveEvent;
 
 	return 0;
 }
@@ -377,7 +425,6 @@ void store_SensorPair(susensors_sensor_t* s, uint8_t* data, uint32_t len){
 }
 
 void restore_SensorPairs(susensors_sensor_t* s){
-
 	struct file_s read;
 	list_t pairings_list = s->pairs;
 	char filename[40];
@@ -401,8 +448,11 @@ void restore_SensorPairs(susensors_sensor_t* s){
 			pair->deviceptr = s;
 			list_add(pairings_list, pair);
 
-			//Signal to the susensor class, that a new pair/binding is ready.
-			process_post(&susensors_process, susensors_pair, pair);
+//			if(first){
+//				//Signal to the susensor class, that a new pair/binding is ready.
+//				process_post(&susensors_process, susensors_pair, pair);
+//				first = 0;
+//			}
 		}
 		else{
 			memb_free(&pairings, pair);

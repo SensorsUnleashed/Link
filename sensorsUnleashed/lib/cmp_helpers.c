@@ -297,8 +297,8 @@ int cp_decodeS8Array(uint8_t* buffer, int8_t* arr, uint32_t* len){
 }
 
 
-//Return 1 for error
-//Return 0 for success
+//Return -1 for error
+//Return arraysize for success
 int cp_decodeU16Array(uint8_t* buffer, uint16_t* arr, uint32_t* len){
 	cmp_ctx_t cmp;
 	cmp_init(&cmp, buffer, buf_reader, 0);
@@ -309,9 +309,10 @@ int cp_decodeU16Array(uint8_t* buffer, uint16_t* arr, uint32_t* len){
 		while(size){
 			if(cmp_read_u16(&cmp, arr++)){
 				size -= 2;
+				ret++;
 			}
 			else{
-				ret = 1;
+				ret = -1;
 				break;
 			}
 		}
