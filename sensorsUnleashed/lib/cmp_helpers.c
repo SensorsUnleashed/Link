@@ -211,11 +211,12 @@ int cp_decodeObject(uint8_t* buffer, cmp_object_t *obj, uint32_t* len){
 	return 1;
 }
 
-uint32_t cp_encodeU8(uint8_t* buffer, uint8_t val){
+uint32_t cp_encodeU8(uint8_t* buffer, uint8_t val, uint32_t* len){
 	cmp_ctx_t cmp;
 	cmp_init(&cmp, buffer, 0, buf_writer);
 	cmp_write_u8(&cmp, val);
-	return (uint32_t)((void*)cmp.buf - (void*)buffer);
+	*len += (uint8_t*)cmp.buf - buffer;
+	return 0;
 }
 
 uint32_t cp_encodeU8Array(uint8_t* buffer, uint8_t* data, uint32_t size, uint32_t* len){

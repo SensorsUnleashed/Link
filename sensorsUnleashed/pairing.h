@@ -64,6 +64,7 @@ struct __attribute__ ((__packed__)) joinpair_s{
 	struct mmem srcurl;	//Used only to determine at boot, which resource we are a pair of.
 
 	int8_t triggers[3];	//Which action is set to be triggered
+	int8_t triggerindex; //Used when we setup the pairs connection initially
 	eventhandler_ptr aboveEventhandler;
 	eventhandler_ptr belowEventhandler;
 	eventhandler_ptr changeEventhandler;
@@ -75,7 +76,7 @@ struct __attribute__ ((__packed__)) joinpair_s{
 
 typedef struct joinpair_s joinpair_t;
 
-uint8_t parseMessage(joinpair_t* pair);
+int8_t parseMessage(joinpair_t* pair);
 
 list_t pairing_get_pairs(void);
 //joinpair_t* getUartSensorPair(uartsensors_device_t* p);
@@ -86,7 +87,7 @@ uint8_t pairing_assembleMessage(const uint8_t* data, uint32_t len, uint32_t num)
 int16_t pairing_getlist(susensors_sensor_t* s, uint8_t* buffer, uint16_t len, int32_t *offset);
 uint8_t pairing_remove_all(susensors_sensor_t* s);
 uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer);
-uint8_t pairing_handle(susensors_sensor_t* s);
+int8_t pairing_handle(susensors_sensor_t* s);
 void store_SensorPair(susensors_sensor_t* s, uint8_t* data, uint32_t len);
 void restore_SensorPairs(susensors_sensor_t* s);
 

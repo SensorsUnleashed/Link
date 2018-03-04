@@ -68,6 +68,7 @@ struct file_s{
 
 static bool file_reader(cmp_ctx_t *ctx, void *data, uint32_t limit);
 static uint32_t file_writer(cmp_ctx_t* ctx, const void *data, uint32_t count);
+static uint8_t lastid = 0;
 
 #define BUFFERSIZE	300
 static uint8_t buffer[BUFFERSIZE] __attribute__ ((aligned (4))) = { 0 };
@@ -163,20 +164,54 @@ static bool buf_reader(cmp_ctx_t *ctx, void *data, uint32_t limit) {
 	return true;
 }
 
-//Return not needed pairing - Indexes shall be ordered - lowest first e.g, [0,3,4]
+//Return not needed pairing - Indexes ex. [0,3,4]
 //Return 0 on success
 //Return 1 if there are no pairingfile
 //Return 2 Its not possible to create a temperary file
 //Return 3 There pairings file is empty.
 //Return 4 index array malformed
+//Return 5 Flash is dirty
+//Return 6 no valid ids send
 uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer){
 
-	uint8_t* index;			//Current line index to be removed
 	uint32_t indexlen = 0;	//Received length of indexs
-	int currentindex = 0;	//Current pairindex
 	struct file_s orig, temp;
-
 	char filename[30];
+	uint8_t arr[20];
+	int found = 0;
+
+	cmp_ctx_t cmpindex;
+	cmp_init(&cmpindex, indexbuffer, buf_reader, 0);
+
+	if(!cmp_read_array(&cmpindex, &indexlen)) {
+		cfs_close(orig.fd);
+		cfs_close(temp.fd);
+		return 4;
+	}
+
+	if(indexlen <= 0) return 6;
+
+	for(int i=0; i<indexlen; i++){
+		if(!cmp_read_u8(&cmpindex, &arr[i])){
+			cfs_close(orig.fd);
+			cfs_close(temp.fd);
+			return 4;
+		}
+	}
+
+	//Find out if any of the ids are valid (If only one is, we go forth)
+	for(int i=0; i<indexlen; i++){
+		for(joinpair_t* p = list_head(s->pairs); p; p = list_item_next(p)){
+			if(p->id == arr[i]){
+				found = 1;
+				break;
+			}
+		}
+		if(found) break;
+	}
+	if(found == 0) return 6;
+
+	//Finally create a new file with the pairings
 	memset(filename, 0, 30);
 	sprintf(filename, "pairs_%s", s->type);
 
@@ -197,38 +232,27 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 	cmp_ctx_t cmptmp;
 	cmp_init(&cmptmp, &temp, file_reader, file_writer);
 
-	cmp_ctx_t cmpindex;
-	cmp_init(&cmpindex, indexbuffer, buf_reader, 0);
-
-	if(!cmp_read_array(&cmpindex, &indexlen)) {
-		cfs_close(orig.fd);
-		cfs_close(temp.fd);
-		return 4;
-	}
-
-	uint8_t arr[indexlen];
-	for(int i=0; i<indexlen; i++){
-		if(!cmp_read_u8(&cmpindex, &arr[i])){
-			cfs_close(orig.fd);
-			cfs_close(temp.fd);
-			return 4;
-		}
-	}
-	index = &arr[0];
-
 	/* Copy all the wanted pairings to a temp file */
 	bufsize = BUFFERSIZE;
 	while(cmp_read_bin(&cmp, buffer, &bufsize)){
-		if(currentindex == *index){
-			if(--indexlen > 0){
-				index++;
+		uint8_t id;
+		found = 0;
+		//Its always the last 2 bytes that contains the id
+		cmp_init(&cmpindex, buffer+bufsize-2, buf_reader, 0);
+		if(!cmp_read_u8(&cmpindex, &id)){
+			return 5;
+		}
+
+		for(int i=0; i<indexlen; i++){
+			if(arr[i] == id){
+				found = 1;
+				break;
 			}
 		}
-		else{
+
+		if(!found){
 			cmp_write_bin(&cmptmp, buffer, bufsize);
 		}
-		currentindex++;
-		bufsize = BUFFERSIZE;
 	}
 
 	cfs_close(orig.fd);
@@ -242,8 +266,9 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 	orig.offset = 0;
 	if(orig.fd < 0) return 1;
 
-	//	//Start writing from the end
-	//	cfs_seek(temp.fd, 0, CFS_SEEK_SET);
+	//Start writing from the end
+	//cfs_seek(temp.fd, 0, CFS_SEEK_SET);
+	cmp_init(&cmp, &orig, file_reader, file_writer);
 
 	//Next copy the temp data back to the original file
 	while(cmp_read_bin(&cmptmp, buffer, &bufsize)){
@@ -257,20 +282,33 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 	cfs_close(temp.fd);
 	cfs_remove("temp");
 
+	//Finally remove from memory
+	for(int i=0; i<indexlen; i++){
+		for(joinpair_t* p = list_head(s->pairs); p; p = list_item_next(p)){
+			if(p->id == arr[i]){
+				mmem_free(&p->dsturl);
+				mmem_free(&p->srcurl);
+				list_remove(s->pairs, p);
+				break;
+			}
+		}
+	}
+
 	return 0;
 }
 
 
-//Return 0 if success
-//Return >0 if error:
-// 1 = IP address can not be parsed
-// 2 = dst_uri could not be parsed
-// 3 = Unable to parse the triggers
-// 4 = src_uri could not be parsed
-// 5 = Unable to allocate enough dynamic memory
-// 6 = Unable to get the prefix, so not possible to pair
+//Return the new message id if success
+//Return <= 0 if error:
+// -1 = IP address can not be parsed
+// -2 = dst_uri could not be parsed
+// -3 = Unable to parse the triggers
+// -4 = src_uri could not be parsed
+// -5 = Unable to allocate enough dynamic memory
+// -6 = Unable to get the prefix, so not possible to pair
+// -7 = Unable to parse the id
 
-uint8_t parseMessage(joinpair_t* pair){
+int8_t parseMessage(joinpair_t* pair){
 
 	uint32_t stringlen;
 	char stringbuf[100];
@@ -343,33 +381,41 @@ uint8_t parseMessage(joinpair_t* pair){
 	}
 	memcpy((char*)MMEM_PTR(&pair->srcurl), (char*)stringbuf, stringlen);
 
+	if(cp_decodeU8((uint8_t*) payload + bufindex, &pair->id, &bufindex) != 0){
+		return 0;
+	}
+
 	pair->deviceptr = 0;
 	pair->triggerindex = aboveEvent;
 
-	return 0;
+	return pair->id;
 }
 
 //Return 0 if success
 //Return >0 if error:
-// 1 = IP address can not be parsed
-// 2 = dst_uri could not be parsed
-// 3 = Unable to allocate enough dynamic memory
-// 4 = src_uri could not be parsed
-// 5 = device already paired
-uint8_t pairing_handle(susensors_sensor_t* s){
+// -1 = IP address can not be parsed
+// -2 = dst_uri could not be parsed
+// -3 = Unable to allocate enough dynamic memory
+// -4 = src_uri could not be parsed
+// -5 = device already paired
+int8_t pairing_handle(susensors_sensor_t* s){
 
 	uint8_t* payload = &buffer[0];
 	list_t pairings_list = s->pairs;
 
-	if(strlen(s->type) + bufsize > BUFFERSIZE) return 3;
+	if(strlen(s->type) + bufsize > BUFFERSIZE) return -3;
 	cp_encodeString((uint8_t*) payload + bufsize, s->type, strlen(s->type), &bufsize);
 
-	joinpair_t* p = (joinpair_t*)memb_alloc(&pairings);
-	int ret = parseMessage(p);
+	if(2 + bufsize > BUFFERSIZE) return -3;
+	int id = lastid == 255 ? 1 : lastid + 1;
+	cp_encodeU8((uint8_t*) payload + bufsize, id, &bufsize);
 
-	if(ret != 0){
+	joinpair_t* p = (joinpair_t*)memb_alloc(&pairings);
+	id = parseMessage(p);
+
+	if(id <= 0){
 		memb_free(&pairings, p);
-		return ret;
+		return id;
 	}
 
 	p->deviceptr = s;
@@ -386,7 +432,7 @@ uint8_t pairing_handle(susensors_sensor_t* s){
 		if(pair->dsturl.size == p->dsturl.size){
 			if(strncmp((char*)MMEM_PTR(&pair->dsturl),(char*)MMEM_PTR(&p->dsturl), pair->dsturl.size) == 0){
 				memb_free(&pairings, p);
-				return 5;
+				return -5;
 			}
 		}
 	}
@@ -402,7 +448,9 @@ uint8_t pairing_handle(susensors_sensor_t* s){
 	//Signal to the susensor class, that a new pair/binding is ready.
 	process_post(&susensors_process, susensors_pair, p);
 
-	return 0;
+	lastid = lastid < id ? id : lastid;
+
+	return id;
 }
 
 void store_SensorPair(susensors_sensor_t* s, uint8_t* data, uint32_t len){
@@ -443,16 +491,11 @@ void restore_SensorPairs(susensors_sensor_t* s){
 	bufsize = BUFFERSIZE;
 	while(cmp_read_bin(&cmp, buffer, &bufsize)){
 		joinpair_t* pair = (joinpair_t*)memb_alloc(&pairings);
-		if(parseMessage(pair) == 0){
+		if(parseMessage(pair) > 0){
 			PRINTF("SrcUri: %s -> DstUri: %s\n", (char*)MMEM_PTR(&pair->srcurl), (char*)MMEM_PTR(&pair->dsturl));
 			pair->deviceptr = s;
 			list_add(pairings_list, pair);
-
-//			if(first){
-//				//Signal to the susensor class, that a new pair/binding is ready.
-//				process_post(&susensors_process, susensors_pair, pair);
-//				first = 0;
-//			}
+			lastid = lastid < pair->id ? pair->id : lastid;
 		}
 		else{
 			memb_free(&pairings, pair);
