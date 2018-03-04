@@ -66,9 +66,22 @@ void crypto_isr(void);
 void pka_isr(void);
 
 /* Sensors Unleashed ISR functions */
-void pulscounter_isr(void);
+#if HAS_MAINSDETECT
 void mainsdetect_pulsecnt_isr();
 void mainsdetect_mainsgone_isr();
+#define timer2A_isr		mainsdetect_pulsecnt_isr
+#define timer2B_isr 	mainsdetect_mainsgone_isr
+#else
+#define timer2A_isr		default_handler
+#define timer2B_isr		default_handler
+#endif
+
+#if HAS_PULSECOUNTER
+void pulscounter_isr(void);
+#define timer1A_isr		pulscounter_isr
+#else
+#define timer1A_isr		default_handler
+#endif
 
 /* Link in the USB ISR only if USB is enabled */
 #if USB_SERIAL_CONF_ENABLE
@@ -150,10 +163,10 @@ void(*const vectors[])(void) =
   default_handler,            /* 34 Watchdog timer, timer 0 */
   default_handler,            /* 35 Timer 0 subtimer A */
   default_handler,            /* 36 Timer 0 subtimer B */
-  pulscounter_isr,            /* 37 Timer 1 subtimer A */
+  timer1A_isr,		          /* 37 Timer 1 subtimer A */
   default_handler,            /* 38 Timer 1 subtimer B */
-  mainsdetect_pulsecnt_isr,            /* 39 Timer 2 subtimer A */
-  mainsdetect_mainsgone_isr,            /* 40 Timer 2 subtimer B */
+  timer2A_isr,   			  /* 39 Timer 2 subtimer A */
+  timer2B_isr,  			  /* 40 Timer 2 subtimer B */
   default_handler,            /* 41 Analog Comparator 0 */
   default_handler,            /* 42 RFCore Rx/Tx (Alternate) */
   default_handler,            /* 43 RFCore Error (Alternate) */

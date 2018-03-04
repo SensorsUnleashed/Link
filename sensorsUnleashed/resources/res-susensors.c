@@ -75,22 +75,22 @@ res_susensor_gethandler(void *request, void *response, uint8_t *buffer, uint16_t
 	unsigned int ct = -1;
 	REST.get_header_content_type(request, &ct);
 
-//	if(ct != REST.type.APPLICATION_OCTET_STREAM) {
-//		REST.set_response_status(response, REST.status.BAD_REQUEST);
-//		const char *error_msg = "msgPacked, octet-stream only";
-//		REST.set_response_payload(response, error_msg, strlen(error_msg));
-//		return;
-//	}
+	//	if(ct != REST.type.APPLICATION_OCTET_STREAM) {
+	//		REST.set_response_status(response, REST.status.BAD_REQUEST);
+	//		const char *error_msg = "msgPacked, octet-stream only";
+	//		REST.set_response_payload(response, error_msg, strlen(error_msg));
+	//		return;
+	//	}
 
-//	coap_packet_t *const coap_req = (coap_packet_t *)request;
-//	if(IS_OPTION(coap_req, COAP_OPTION_OBSERVE)) {
-//		if(coap_req->observe == 0) {
-//
-//		}
-//		else if(coap_req->observe == 1){
-//
-//		}
-//	}
+	//	coap_packet_t *const coap_req = (coap_packet_t *)request;
+	//	if(IS_OPTION(coap_req, COAP_OPTION_OBSERVE)) {
+	//		if(coap_req->observe == 0) {
+	//
+	//		}
+	//		else if(coap_req->observe == 1){
+	//
+	//		}
+	//	}
 
 	int len = REST.get_url(request, &url);
 	struct susensors_sensor *sensor = (struct susensors_sensor *)susensors_find(url, len);
@@ -256,35 +256,42 @@ res_susensor_puthandler(void *request, void *response, uint8_t *buffer, uint16_t
 						}
 
 						if(coap_req->block1_more == 0){
-
 							//We're finished receiving the payload, now parse it.
 							int res = pairing_handle(sensor);
-							switch(res){
-							case 0:
-								//All is good
+							if(res > 0){
+								//All is good, return the id of the created pair
+								uint32_t l = 0;
+								cp_encodeU8(buffer, res, &l);
 								REST.set_response_status(response, REST.status.CREATED);
-								break;
-							case 1:
-								REST.set_response_status(response, REST.status.BAD_REQUEST);
-								const char *error_msg1 = "IPAdress wrong";
-								REST.set_response_payload(response, error_msg1, strlen(error_msg1));
-								break;
-							case 2:
-								REST.set_response_status(response, REST.status.BAD_REQUEST);
-								const char *error_msg2 = "Destination URI wrong";
-								REST.set_response_payload(response, error_msg2, strlen(error_msg2));
-								break;
-							case 3:
-								REST.set_response_status(response, REST.status.INTERNAL_SERVER_ERROR);
-								break;
-							case 4:
-								REST.set_response_status(response, REST.status.BAD_REQUEST);
-								const char *error_msg3 = "Source URI wrong";
-								REST.set_response_payload(response, error_msg3, strlen(error_msg3));
-								break;
-							case 5:
-								REST.set_response_status(response, REST.status.NOT_MODIFIED);
-								break;
+								REST.set_response_payload(response, buffer, len);
+							}
+							else{
+								switch(res){
+								case 0:
+									REST.set_response_status(response, REST.status.INTERNAL_SERVER_ERROR);
+									break;
+								case -1:
+									REST.set_response_status(response, REST.status.BAD_REQUEST);
+									const char *error_msg1 = "IPAdress wrong";
+									REST.set_response_payload(response, error_msg1, strlen(error_msg1));
+									break;
+								case -2:
+									REST.set_response_status(response, REST.status.BAD_REQUEST);
+									const char *error_msg2 = "Destination URI wrong";
+									REST.set_response_payload(response, error_msg2, strlen(error_msg2));
+									break;
+								case -3:
+									REST.set_response_status(response, REST.status.INTERNAL_SERVER_ERROR);
+									break;
+								case -4:
+									REST.set_response_status(response, REST.status.BAD_REQUEST);
+									const char *error_msg3 = "Source URI wrong";
+									REST.set_response_payload(response, error_msg3, strlen(error_msg3));
+									break;
+								case -5:
+									REST.set_response_status(response, REST.status.NOT_MODIFIED);
+									break;
+								}
 							}
 						}
 					}

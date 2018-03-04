@@ -9,7 +9,8 @@ CONTIKI_TARGET_DIRS += . dev
 PLATFORM_ROOT_DIR = $(CONTIKI)/arch/platform/$(TARGET)
 
 ### Include
-CONTIKI_TARGET_SOURCEFILES += contiki-main.c board.c
+#CONTIKI_TARGET_SOURCEFILES += contiki-main.c board.c
+CONTIKI_TARGET_SOURCEFILES += platform.c board.c
 CONTIKI_TARGET_SOURCEFILES += leds-arch.c su-cc2538-1-sensors.c
 CONTIKI_TARGET_SOURCEFILES += antenna.c
 

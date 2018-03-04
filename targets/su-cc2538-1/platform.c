@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (c) 2012, Texas Instruments Incorporated - http://www.ti.com/
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -10,6 +10,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ *
  * 3. Neither the name of the copyright holder nor the names of its
  *    contributors may be used to endorse or promote products derived
  *    from this software without specific prior written permission.
@@ -26,33 +27,25 @@
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This file is part of the Contiki operating system.
- *
  */
-/*---------------------------------------------------------------------------*/
 /**
- * \addtogroup platform
+ * \addtogroup cc2538-platforms
  * @{
  *
- * \defgroup openmote-cc2538 OpenMote-CC2538 platform
+ * \defgroup cc2538dk The cc2538 Development Kit platform
  *
- * The OpenMote-CC2538 is based on the CC2538, the new platform by Texas Instruments
- * based on an ARM Cortex-M3 core and a IEEE 802.15.4 radio.
+ * The cc2538DK is a platform by Texas Instruments, based on the
+ * cc2538 SoC with an ARM Cortex-M3 core.
  * @{
  *
  * \file
- * Main module for the OpenMote-CC2538 platform
+ *   Main module for the cc2538dk platform
  */
 /*---------------------------------------------------------------------------*/
 #include "contiki.h"
+#include "dev/adc.h"
 #include "dev/leds.h"
-#include "dev/sys-ctrl.h"
-#include "dev/nvic.h"
 #include "dev/uart.h"
-#include "dev/i2c.h"
-#include "dev/watchdog.h"
-#include "dev/ioc.h"
 #include "dev/button-sensor.h"
 #include "dev/serial-line.h"
 #include "dev/slip.h"
@@ -62,10 +55,9 @@
 #include "usb/usb-serial.h"
 #include "lib/random.h"
 #include "net/netstack.h"
-#include "net/queuebuf.h"
-#include "net/ipv6/tcpip.h"
-#include "net/ipv6/uip.h"
 #include "net/mac/framer/frame802154.h"
+#include "net/linkaddr.h"
+#include "sys/platform.h"
 #include "soc.h"
 #include "cpu.h"
 #include "reg.h"
@@ -77,17 +69,10 @@
 #include <string.h>
 #include <stdio.h>
 /*---------------------------------------------------------------------------*/
-#if STARTUP_CONF_VERBOSE
-#define PRINTF(...) printf(__VA_ARGS__)
-#else
-#define PRINTF(...)
-#endif
-
-#if UART_CONF_ENABLE
-#define PUTS(s) puts(s)
-#else
-#define PUTS(s)
-#endif
+/* Log configuration */
+#include "sys/log.h"
+#define LOG_MODULE "SU RadioOne"
+#define LOG_LEVEL LOG_LEVEL_MAIN
 /*---------------------------------------------------------------------------*/
 /**
  * \brief Board specific iniatialisation
@@ -124,44 +109,34 @@ set_rf_params(void)
   short_addr = ext_addr[7];
   short_addr |= ext_addr[6] << 8;
 
-  /* Populate linkaddr_node_addr. Maintain endianness */
-  memcpy(&linkaddr_node_addr, &ext_addr[8 - LINKADDR_SIZE], LINKADDR_SIZE);
-
-#if STARTUP_CONF_VERBOSE
-  {
-    int i;
-    printf("Rime configured with address ");
-    for(i = 0; i < LINKADDR_SIZE - 1; i++) {
-      printf("%02x:", linkaddr_node_addr.u8[i]);
-    }
-    printf("%02x\n", linkaddr_node_addr.u8[i]);
-  }
-#endif
-
   NETSTACK_RADIO.set_value(RADIO_PARAM_PAN_ID, IEEE802154_PANID);
   NETSTACK_RADIO.set_value(RADIO_PARAM_16BIT_ADDR, short_addr);
   NETSTACK_RADIO.set_value(RADIO_PARAM_CHANNEL, CC2538_RF_CHANNEL);
   NETSTACK_RADIO.set_object(RADIO_PARAM_64BIT_ADDR, ext_addr, 8);
 }
 /*---------------------------------------------------------------------------*/
-/**
- * \brief Main routine for the Sensors Unleashed - CC2538 platform
- */
-int
-main(void)
+void
+platform_init_stage_one(void)
 {
-  nvic_init();
-  ioc_init();
-  sys_ctrl_init();
-  clock_init();
-  lpm_init();
-  rtimer_init();
-  gpio_init();
-  leds_init();
-  fade(LEDS_RED);
-  process_init();
-  //watchdog_init();
+  soc_init();
 
+  leds_init();
+  fade(LEDS_YELLOW);
+}
+/*---------------------------------------------------------------------------*/
+void
+platform_init_stage_two()
+{
+  /*
+   * Character I/O Initialisation.
+   * When the UART receives a character it will call serial_line_input_byte to
+   * notify the core. The same applies for the USB driver.
+   *
+   * If slip-arch is also linked in afterwards (e.g. if we are a border router)
+   * it will overwrite one of the two peripheral input callbacks. Characters
+   * received over the relevant peripheral will be handled by
+   * slip_input_byte instead
+   */
 #if UART_CONF_ENABLE
   uart_init(0);
   uart_init(1);
@@ -173,68 +148,47 @@ main(void)
   usb_serial_set_input(serial_line_input_byte);
 #endif
 
-  i2c_init(I2C_SDA_PORT, I2C_SDA_PIN, I2C_SCL_PORT, I2C_SCL_PIN, I2C_SCL_NORMAL_BUS_SPEED);
-
   serial_line_init();
 
-  INTERRUPTS_ENABLE();
-  fade(LEDS_BLUE);
-
-  PUTS(CONTIKI_VERSION_STRING);
-  PUTS(BOARD_STRING);
-#if STARTUP_CONF_VERBOSE
-  soc_print_info();
-#endif
-
+  /* Initialise the H/W RNG engine. */
   random_init(0);
 
   udma_init();
-
-  process_start(&etimer_process, NULL);
-  ctimer_init();
-
-  board_init();
 
 #if CRYPTO_CONF_INIT
   crypto_init();
   crypto_disable();
 #endif
 
-  netstack_init();
+  /* Populate linkaddr_node_addr */
+  ieee_addr_cpy_to(linkaddr_node_addr.u8, LINKADDR_SIZE);
+
+  INTERRUPTS_ENABLE();
+
+  fade(LEDS_GREEN);
+}
+/*---------------------------------------------------------------------------*/
+void
+platform_init_stage_three()
+{
+  LOG_INFO("%s\n", BOARD_STRING);
+
   set_rf_params();
 
-  PRINTF("Net: ");
-  PRINTF("%s\n", NETSTACK_NETWORK.name);
-  PRINTF("MAC: ");
-  PRINTF("%s\n", NETSTACK_MAC.name);
-  PRINTF("RDC: ");
-  PRINTF("%s\n", NETSTACK_RDC.name);
+  board_init();
 
-#if NETSTACK_CONF_WITH_IPV6
-  memcpy(&uip_lladdr.addr, &linkaddr_node_addr, sizeof(uip_lladdr.addr));
-  queuebuf_init();
-  process_start(&tcpip_process, NULL);
-#endif /* NETSTACK_CONF_WITH_IPV6 */
+  soc_print_info();
 
-//  energest_init();
-//  ENERGEST_ON(ENERGEST_TYPE_CPU);
+  adc_init();
 
-  autostart_start(autostart_processes);
-
-  //watchdog_start();
-  fade(LEDS_GREEN);
-
-  while(1) {
-    uint8_t r;
-    do {
-      /* Reset watchdog and handle polls and events */
-      watchdog_periodic();
-
-      r = process_run();
-    } while(r > 0);
-
-    lpm_enter();
-  }
+  fade(LEDS_ORANGE);
+}
+/*---------------------------------------------------------------------------*/
+void
+platform_idle()
+{
+  /* We have serviced all pending events. Enter a Low-Power mode. */
+  lpm_enter();
 }
 /*---------------------------------------------------------------------------*/
 /**
