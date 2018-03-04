@@ -169,6 +169,7 @@ int missingJustCalled(uip_ip6addr_t* srcip){
 			}
 			if(found){
 				interested = 1;
+				i->triggerindex = aboveEvent;
 				process_post(&susensors_process, susensors_pair, i);
 			}
 		}
@@ -230,81 +231,45 @@ static void nodedetected_callback(coap_observee_t *obs, void *notification,
 	joinpair_t* pair;
 	cmp_ctx_t cmp;
 	int len = 0;
-		const uint8_t *payload = NULL;
-
-		printf("Notification handler\n");
-		printf("Observee URI: %s\n", obs->url);
-		if(notification) {
-			len = REST.get_request_payload(notification, &payload);
-			//len = coap_get_payload(notification, &payload);
-		}
-		switch(flag) {
-		case NOTIFICATION_OK:
-			printf("Payload len = %d\n", len);
-			cmp_init(&cmp, (uint8_t*)payload, buf_reader, 0);
-			uint32_t size = 0;
-			uip_ip6addr_t destip;
-
-			//First unpack the payload (If its ok, that is)
-			if(cmp_read_array(&cmp, &size) == false){
-				coap_obs_remove_observee_by_token(&obs->addr, UIP_HTONS(COAP_DEFAULT_PORT), obs->token, obs->token_len);
-				return;
-			}
-			for(int j=0; j<size; j++){
-				cmp_read_u16(&cmp, &destip.u16[j]);
-			}
-
-			//Next find the pairs needing this IP
-			do{
-				pair = findFromMissing(&destip);
-				if(pair){
-					//Signal to the process that it can try to pair again.
-					process_post(&susensors_process, susensors_pair, pair);
-					list_remove(missing, pair);
-				}
-			}while(pair != NULL);
-
-			if(list_length(missing) == 0){
-				//We're missing noone, remove observee
-				coap_obs_remove_observee_by_token(&obs->addr, UIP_HTONS(COAP_DEFAULT_PORT), obs->token, obs->token_len);
-			}
-
-			break;
-		case OBSERVE_OK: /* server accepeted observation request */
-			printf("OBSERVE_OK: %*s\n", len, (char *)payload);
-			break;
-		case OBSERVE_NOT_SUPPORTED:
-			printf("OBSERVE_NOT_SUPPORTED: %*s\n", len, (char *)payload);
-			obs = NULL;
-			break;
-		case ERROR_RESPONSE_CODE:
-			printf("ERROR_RESPONSE_CODE: %*s\n", len, (char *)payload);
-			obs = NULL;
-			break;
-		case NO_REPLY_FROM_SERVER:
-			printf("NO_REPLY_FROM_SERVER: "
-					"removing observe registration with token %x%x\n",
-					obs->token[0], obs->token[1]);
-			obs = NULL;
-			break;
-		}
-}
-#endif
-
-static void notification_callback(coap_observee_t *obs, void *notification,
-		coap_notification_flag_t flag){
-
-	int len = 0;
 	const uint8_t *payload = NULL;
 
 	printf("Notification handler\n");
 	printf("Observee URI: %s\n", obs->url);
 	if(notification) {
-		len = coap_get_payload(notification, &payload);
+		len = REST.get_request_payload(notification, &payload);
+		//len = coap_get_payload(notification, &payload);
 	}
 	switch(flag) {
 	case NOTIFICATION_OK:
-		printf("NOTIFICATION OK: %*s\n", len, (char *)payload);
+		printf("Payload len = %d\n", len);
+		cmp_init(&cmp, (uint8_t*)payload, buf_reader, 0);
+		uint32_t size = 0;
+		uip_ip6addr_t destip;
+
+		//First unpack the payload (If its ok, that is)
+		if(cmp_read_array(&cmp, &size) == false){
+			coap_obs_remove_observee_by_token(&obs->addr, UIP_HTONS(COAP_DEFAULT_PORT), obs->token, obs->token_len);
+			return;
+		}
+		for(int j=0; j<size; j++){
+			cmp_read_u16(&cmp, &destip.u16[j]);
+		}
+
+		//Next find the pairs needing this IP
+		do{
+			pair = findFromMissing(&destip);
+			if(pair){
+				//Signal to the process that it can try to pair again.
+				process_post(&susensors_process, susensors_pair, pair);
+				list_remove(missing, pair);
+			}
+		}while(pair != NULL);
+
+		if(list_length(missing) == 0){
+			//We're missing noone, remove observee
+			coap_obs_remove_observee_by_token(&obs->addr, UIP_HTONS(COAP_DEFAULT_PORT), obs->token, obs->token_len);
+		}
+
 		break;
 	case OBSERVE_OK: /* server accepeted observation request */
 		printf("OBSERVE_OK: %*s\n", len, (char *)payload);
@@ -321,6 +286,41 @@ static void notification_callback(coap_observee_t *obs, void *notification,
 		printf("NO_REPLY_FROM_SERVER: "
 				"removing observe registration with token %x%x\n",
 				obs->token[0], obs->token[1]);
+		obs = NULL;
+		break;
+	}
+}
+#endif
+
+static void notification_callback(coap_observee_t *obs, void *notification,
+		coap_notification_flag_t flag){
+
+	int len = 0;
+	const uint8_t *payload = NULL;
+	joinpair_t* pair = (joinpair_t*) obs->data;
+
+	printf("Notification handler\n");
+	printf("Observee URI: %s\n", obs->url);
+	if(notification) {
+		len = coap_get_payload(notification, &payload);
+	}
+	switch(flag) {
+	case NOTIFICATION_OK:
+		printf("NOTIFICATION OK: %*s\n", len, (char *)payload);
+		break;
+	case OBSERVE_OK: /* server accepeted observation request */
+		printf("OBSERVE_OK: %*s\n", len, (char *)payload);
+		break;
+	case OBSERVE_NOT_SUPPORTED:
+		printf("OBSERVE_NOT_SUPPORTED: %*s\n", len, (char *)payload);
+		break;
+	case ERROR_RESPONSE_CODE:
+		printf("ERROR_RESPONSE_CODE: %*s\n", len, (char *)payload);
+		break;
+	case NO_REPLY_FROM_SERVER:
+		printf("NO_REPLY_FROM_SERVER: "
+				"removing observe registration with token %x%x\n",
+				obs->token[0], obs->token[1]);
 #ifdef USE_BR_DETECT
 		joinpair_t* pair = (joinpair_t*) obs->data;
 
@@ -330,9 +330,11 @@ static void notification_callback(coap_observee_t *obs, void *notification,
 			//process_post(&susensors_process, susensors_service, pair);
 		}
 #endif
-		obs = NULL;
 		break;
 	}
+
+	//Ready to request next pair
+	process_post(&susensors_process, susensors_pair, pair);
 }
 
 static void above_notificationcb(coap_observee_t *obs, void *notification,
@@ -340,6 +342,7 @@ static void above_notificationcb(coap_observee_t *obs, void *notification,
 
 	int len = 0;
 	const uint8_t *payload = NULL;
+	joinpair_t* pair = (joinpair_t*) obs->data;
 
 	if(flag == NOTIFICATION_OK){
 
@@ -347,7 +350,7 @@ static void above_notificationcb(coap_observee_t *obs, void *notification,
 			len = coap_get_payload(notification, &payload);
 		}
 
-		joinpair_t* pair = (joinpair_t*) obs->data;
+
 		susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
 		if(pair->aboveEventhandler != 0){
 			pair->aboveEventhandler(this, len, payload);
@@ -363,6 +366,7 @@ static void below_notificationcb(coap_observee_t *obs, void *notification,
 		coap_notification_flag_t flag){
 	int len = 0;
 	const uint8_t *payload = NULL;
+	joinpair_t* pair = (joinpair_t*) obs->data;
 
 	if(flag == NOTIFICATION_OK){
 
@@ -370,7 +374,6 @@ static void below_notificationcb(coap_observee_t *obs, void *notification,
 			len = coap_get_payload(notification, &payload);
 		}
 
-		joinpair_t* pair = (joinpair_t*) obs->data;
 		susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
 		if(pair->belowEventhandler != 0){
 			pair->belowEventhandler(this, len, payload);
@@ -380,13 +383,13 @@ static void below_notificationcb(coap_observee_t *obs, void *notification,
 	else{
 		notification_callback(obs, notification, flag);
 	}
-
 }
 
 static void change_notificationcb(coap_observee_t *obs, void *notification,
 		coap_notification_flag_t flag){
 	int len = 0;
 	const uint8_t *payload = NULL;
+	joinpair_t* pair = (joinpair_t*) obs->data;
 
 	if(flag == NOTIFICATION_OK){
 
@@ -394,7 +397,6 @@ static void change_notificationcb(coap_observee_t *obs, void *notification,
 			len = coap_get_payload(notification, &payload);
 		}
 
-		joinpair_t* pair = (joinpair_t*) obs->data;
 		susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
 		if(pair->changeEventhandler != 0){
 			pair->changeEventhandler(this, len, payload);
@@ -408,7 +410,13 @@ static void change_notificationcb(coap_observee_t *obs, void *notification,
 
 static void txPresence_cb(void *data, void *response){
 	revlookup_t* rl = (revlookup_t*) data;
+	revlookup_t* nrl;
 	coap_packet_t *const coap_res = (coap_packet_t *)response;
+
+	nrl = list_item_next(rl);
+	if(nrl){
+		process_post(&susensors_process, susensors_presence, nrl);
+	}
 
 	if(response == NULL){	//Timeout
 		return;
@@ -416,7 +424,7 @@ static void txPresence_cb(void *data, void *response){
 
 	if(coap_res->code == DELETED_2_02){
 		//We are not known to the node we posted our presence to, remove it from our list
-		removeItem(rl);
+		revNotifyRmItem(rl);
 	}
 }
 
@@ -437,11 +445,63 @@ static void txPresence(revlookup_t* rl){
 	}
 }
 
+/* Go through all the devices and all the pairs
+ * Return 0 on finished all pairs else 1
+ * */
+static int setupPairsConnections(joinpair_t* pair){
+	susensors_sensor_t* this = pair->deviceptr;
+
+	do{
+		//There is no more triggers, now proceed to the next device if any
+		if(pair->triggerindex >= noEvent){
+			for(this = susensors_next(this); this; this = susensors_next(this)) {
+				pair = list_head(this->pairs);
+				if(pair != NULL) break;
+			}
+
+			//Check if we're done
+			if(this == NULL || pair == NULL) {
+				return 0;
+			}
+		}
+
+		if(pair->triggers[0] != -1 && pair->triggerindex < aboveEvent){	//Above
+			pair->triggerindex = 0;
+			pair->aboveEventhandler = this->setEventhandlers(this, pair->triggers[aboveEvent]);
+			if(pair->aboveEventhandler != NULL){
+				coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlAbove,
+						above_notificationcb, pair);
+			}
+		}
+		else if(pair->triggers[1] != -1 && pair->triggerindex < belowEvent){	//Below
+			pair->triggerindex = belowEvent;
+			pair->belowEventhandler = this->setEventhandlers(this, pair->triggers[belowEvent]);
+			if(pair->belowEventhandler != NULL){
+				coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlBelow,
+						below_notificationcb, pair);
+			}
+		}
+		else if(pair->triggers[2] != -1 && pair->triggerindex < changeEvent){	//Change
+			pair->triggerindex = changeEvent;
+			pair->changeEventhandler = this->setEventhandlers(this, pair->triggers[changeEvent]);
+			if(pair->changeEventhandler != NULL){
+				coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlChange,
+						change_notificationcb, pair);
+			}
+		}
+		else{
+			pair->triggerindex = noEvent;
+		}
+	} while(pair->triggerindex == noEvent);
+
+	return 1;
+}
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(susensors_process, ev, data)
 {
 	static int events;
 	static susensors_sensor_t* d;
+	static int revlookupdone = 0;
 
 	PROCESS_BEGIN();
 
@@ -455,43 +515,37 @@ PROCESS_THREAD(susensors_process, ev, data)
 
 	register_new_observer_notify_callback(new_observer);
 
+	revNotifyInit();
+
 	for(d = susensors_first(); d; d = susensors_next(d)) {
 		d->event_flag = 0;
 		d->configure(d, SUSENSORS_HW_INIT, 0);
 		d->configure(d, SUSENSORS_ACTIVE, 1);
 
 		//Restore sensor pairs stored in flash
-		//restore_SensorPairs(d);
+		restore_SensorPairs(d);
 	}
 
-	initReverseNotify();
+
+	//Begin the pair connection
+	joinpair_t* pair = NULL;
+	for(d = susensors_first(); d; d = susensors_next(d)) {
+		pair = list_head(d->pairs);
+		if(pair != NULL){
+			process_post(&susensors_process, susensors_pair, pair);
+			break;
+		}
+	}
 
 	while(1) {
-
 		PROCESS_WAIT_EVENT();
 
 		if(ev == susensors_pair){
-			joinpair_t* pair = (joinpair_t*) data;
-			susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
-			if(pair->triggers[0] != -1){	//Above
-				pair->aboveEventhandler = this->setEventhandlers(this, pair->triggers[aboveEvent]);
-				if(pair->aboveEventhandler != NULL){
-					coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlAbove,
-							above_notificationcb, pair);
-				}
-			}
-			if(pair->triggers[1] != -1){	//Below
-				pair->belowEventhandler = this->setEventhandlers(this, pair->triggers[belowEvent]);
-				if(pair->belowEventhandler != NULL){
-					coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlBelow,
-							below_notificationcb, pair);
-				}
-			}
-			if(pair->triggers[2] != -1){	//Change
-				pair->changeEventhandler = this->setEventhandlers(this, pair->triggers[changeEvent]);
-				if(pair->changeEventhandler != NULL){
-					coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlChange,
-							change_notificationcb, pair);
+			if(data != NULL){
+				//revNotifyRmAddr(((joinpair_t*)data)->destip);	//No need to notify the device more than once
+				if(setupPairsConnections(data) == 0){
+					//Done pairing our own devices - now pass handle reverse Notify
+					process_post(&susensors_process, susensors_presence, NULL);
 				}
 			}
 		}
@@ -522,16 +576,28 @@ PROCESS_THREAD(susensors_process, ev, data)
 		 * Send a presence message to the ones we know wants our service (Only used for power up)
 		 * */
 		else if(ev == susensors_presence){
-			revlookup_t* rl = (revlookup_t*) data;
-			txPresence(rl);
+			if(revlookupdone) break;
+			revlookupdone = 1;
+			revlookup_t* rl;
+
+			if(data == NULL){	//This is the first time we get called. Initiate..
+				rl = list_head(revNotifyGetList());
+			}
+			else{
+				rl = (revlookup_t*) data;
+			}
+
+			if(rl != NULL){
+				txPresence(rl);
+			}
 		}
 		else if(ev == susensors_new_observer){
 			coap_observer_t *obs =  (coap_observer_t*) data;
-			addSource(&obs->addr);
+			revNotifyAdd(obs->addr);
 		}
 		else {
- 			PRINTF("Notify!!\n");
 			do {
+				printf("notify!\n");
 				events = 0;
 				for(d = susensors_first(); d; d = susensors_next(d)) {
 					resource_t* resource = d->data.resource;

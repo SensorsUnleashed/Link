@@ -28,7 +28,11 @@ struct file_s{
 	int fd;
 };
 
-void initReverseNotify(){
+list_t revNotifyGetList(){
+	return revlookup;
+}
+
+void revNotifyInit(){
 	list_init(revlookup);
 	memb_init(&revlookup_memb);
 
@@ -54,24 +58,37 @@ void initReverseNotify(){
 		}
 		list_add(revlookup, addr);
 
-		//Signal to the susensor class, that a remote node needs to know of our presence.
-		process_post(&susensors_process, susensors_presence, addr);
+//		if(first){
+//			//Signal to the susensor class, that a remote node needs to know of our presence.
+//			process_post(&susensors_process, susensors_presence, addr);
+//			first = 0;
+//		}
 	}
 }
 
-void addSource(uip_ip6addr_t* srcaddr){
-	int add = 1;
+static revlookup_t* revNotifyFind(uip_ip6addr_t srcaddr){
 
+	int found = 0;
 	//Find out if the addr is already in our list
-	for(revlookup_t* i = list_head(revlookup); i && add; i = list_item_next(i)){
-		add = 0;
+	for(revlookup_t* i = list_head(revlookup); i; i = list_item_next(i)){
+		found = 1;
 		for(int j=0; j<8; j++){
-			if(srcaddr->u16[j] != i->srcip.u16[j]){
-				add = 1;
+			if(srcaddr.u16[j] != i->srcip.u16[j]){
+				found = 0;
 				break;
 			}
 		}
+		if(found){
+			return i;
+		}
 	}
+
+	return NULL;
+}
+
+void revNotifyAdd(uip_ip6addr_t srcaddr){
+
+	int add = revNotifyFind(srcaddr) == NULL;
 
 	//Add to the list and write the entire list to flash.
 	//This will seldom happen, so no need to append to the
@@ -80,14 +97,21 @@ void addSource(uip_ip6addr_t* srcaddr){
 		revlookup_t* addr = (revlookup_t*)memb_alloc(&revlookup_memb);
 
 		if(addr){
-			memcpy(&addr->srcip, srcaddr, 16);
+			memcpy(&addr->srcip, &srcaddr, 16);
 			list_add(revlookup, addr);
 			writeFile();
 		}
 	}
 }
 
-void removeItem(revlookup_t* item){
+void revNotifyRmAddr(uip_ip6addr_t srcip){
+	revlookup_t* item = revNotifyFind(srcip);
+	if(item != NULL){
+		list_remove(revlookup, item);
+	}
+}
+
+void revNotifyRmItem(revlookup_t* item){
 	list_remove(revlookup, item);
 	writeFile();
 }

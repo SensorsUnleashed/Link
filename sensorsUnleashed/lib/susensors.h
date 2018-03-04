@@ -54,7 +54,8 @@ typedef int (* eventhandler_ptr)(void* this, int len, const uint8_t* payload);
 enum su_basic_events {
 	aboveEvent,
 	belowEvent,
-	changeEvent
+	changeEvent,
+	noEvent,
 };
 enum su_basic_actions {
 	setOn,
