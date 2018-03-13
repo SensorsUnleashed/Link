@@ -328,7 +328,7 @@ int8_t parseMessage(joinpair_t* pair){
 	stringlen = cp_decodeU16Array((uint8_t*) payload + bufindex, (uint16_t*)&pair->destip, &bufindex);
 	stringlen *= 2;	//We work as 8bit
 	if(stringlen < 0){
-		return 1;
+		return -1;
 	}
 	else if(stringlen < 16){
 		//Move the suffix to the other end of the address.
@@ -340,18 +340,18 @@ int8_t parseMessage(joinpair_t* pair){
 	//Decode the URL of the device
 	stringlen = 100;
 	if(cp_decode_string((uint8_t*) payload + bufindex, &stringbuf[0], &stringlen, &bufindex) != 0){
-		return 2;
+		return -2;
 	}
 	//stringlen++;	//We need the /0 also
 
 	if(mmem_alloc(&pair->dsturl, stringlen+1) == 0){
-		return 5;
+		return -5;
 	}
 	memcpy((char*)MMEM_PTR(&pair->dsturl), (char*)stringbuf, stringlen+1);
 
 	//Event triggers
 	if(cp_decodeS8Array((uint8_t*) payload + bufindex, pair->triggers, &bufindex) != 0){
-		return 3;
+		return -3;
 	}
 
 	//Generate all the connection handles (FIXME: Even though they might not be used)
@@ -373,11 +373,11 @@ int8_t parseMessage(joinpair_t* pair){
 
 	stringlen = 100;
 	if(cp_decode_string((uint8_t*) payload + bufindex, &stringbuf[0], &stringlen, &bufindex) != 0){
-		return 4;
+		return -4;
 	}
 	stringlen++;	//We need the /0 also
 	if(mmem_alloc(&pair->srcurl, stringlen) == 0){
-		return 3;
+		return -3;
 	}
 	memcpy((char*)MMEM_PTR(&pair->srcurl), (char*)stringbuf, stringlen);
 
@@ -386,7 +386,7 @@ int8_t parseMessage(joinpair_t* pair){
 	}
 
 	pair->deviceptr = 0;
-	pair->triggerindex = aboveEvent;
+	pair->triggerindex = -1;
 
 	return pair->id;
 }
