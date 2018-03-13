@@ -28,11 +28,7 @@ struct file_s{
 	int fd;
 };
 
-list_t revNotifyGetList(){
-	return revlookup;
-}
-
-void revNotifyInit(){
+list_t revNotifyInit(){
 	list_init(revlookup);
 	memb_init(&revlookup_memb);
 
@@ -41,7 +37,7 @@ void revNotifyInit(){
 	read.offset = 0;
 
 	if(read.fd < 0) {
-		return;
+		return revlookup;
 	}
 
 	cmp_ctx_t cmp;
@@ -49,21 +45,16 @@ void revNotifyInit(){
 	uint32_t size;
 
 	while(cmp_read_array(&cmp, &size) == true){
-		if(size != 8) return;
+		if(size != 8) return NULL;
 		revlookup_t* addr = (revlookup_t*)memb_alloc(&revlookup_memb);
-		if(addr == NULL) return;
+		if(addr == NULL) return NULL;
 
 		for(int j=0; j<size; j++){
 			cmp_read_u16(&cmp, &addr->srcip.u16[j]);
 		}
 		list_add(revlookup, addr);
-
-//		if(first){
-//			//Signal to the susensor class, that a remote node needs to know of our presence.
-//			process_post(&susensors_process, susensors_presence, addr);
-//			first = 0;
-//		}
 	}
+	return revlookup;
 }
 
 static revlookup_t* revNotifyFind(uip_ip6addr_t srcaddr){
@@ -108,11 +99,13 @@ void revNotifyRmAddr(uip_ip6addr_t srcip){
 	revlookup_t* item = revNotifyFind(srcip);
 	if(item != NULL){
 		list_remove(revlookup, item);
+		memb_free(&revlookup_memb, item);
 	}
 }
 
 void revNotifyRmItem(revlookup_t* item){
 	list_remove(revlookup, item);
+	memb_free(&revlookup_memb, item);
 	writeFile();
 }
 

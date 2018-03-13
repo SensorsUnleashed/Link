@@ -17,8 +17,7 @@ struct __attribute__ ((__packed__)) revlookup_s{
 
 typedef struct revlookup_s revlookup_t;
 
-list_t revNotifyGetList();
-void revNotifyInit();
+list_t revNotifyInit();
 void revNotifyAdd(uip_ip6addr_t srcaddr);
 void revNotifyRmAddr(uip_ip6addr_t srcip);
 void revNotifyRmItem(revlookup_t* item);
