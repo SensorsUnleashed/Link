@@ -55,6 +55,7 @@ struct __attribute__ ((__packed__)) joinpair_s{
 	struct joinpair_s *next;	/* for LIST, points to next resource defined */
 	uint8_t id;			//Used for identifying the pair in case of changes or deletion
 	uint8_t priority;	//Highest priority (1) will have messages sent before lower priority ones
+	uint8_t localhost;	//If this pair local only
 
 	char* dsturlAbove;
 	char* dsturlBelow;

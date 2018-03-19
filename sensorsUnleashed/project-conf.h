@@ -37,7 +37,11 @@
 #define SU_VER_MINOR	0	//Is increased if the protocol is changed, but still backwards compatible
 #define SU_VER_DEV		1	//Is increased for every minor fix
 
-#define LOG_CONF_LEVEL_MAC                         LOG_LEVEL_DBG
+#define LOG_CONF_LEVEL_MAC  		LOG_LEVEL_DBG
+//#define LOG_CONF_LEVEL_TCPIP		LOG_LEVEL_INFO
+#define LOG_CONF_LEVEL_IPV6			LOG_LEVEL_INFO
+#define LOG_CONF_LEVEL_FRAMER		LOG_LEVEL_INFO
+//#define LOG_CONF_LEVEL_6LOWPAN		LOG_LEVEL_INFO
 
 #define WATCHDOG_CONF_ENABLE	0
 
@@ -53,10 +57,10 @@
 #define COAP_OBSERVE_CLIENT 1
 
 /* The number of concurrent messages that can be stored for retransmission in the transaction layer. */
-#define COAP_MAX_OPEN_TRANSACTIONS     4
+#define COAP_MAX_OPEN_TRANSACTIONS     10
 
 /* Maximum number of failed request attempts before action */
-#define COAP_MAX_ATTEMPTS              4
+#define COAP_MAX_ATTEMPTS              3
 
 #define DBG_CONF_USB 1 /** All debugging over UART by default */
 

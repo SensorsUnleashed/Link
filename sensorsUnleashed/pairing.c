@@ -330,6 +330,11 @@ int8_t parseMessage(joinpair_t* pair){
 	if(stringlen < 0){
 		return -1;
 	}
+	else if(stringlen == 2){	//Could be localhost
+		memcpy(&pair->destip.u8[16-stringlen], &pair->destip.u8[0], stringlen);
+		memset(&pair->destip, 0, 14);
+		pair->localhost = 1;
+	}
 	else if(stringlen < 16){
 		//Move the suffix to the other end of the address.
 		//TODO: This should be made smarter.
@@ -384,6 +389,7 @@ int8_t parseMessage(joinpair_t* pair){
 	if(cp_decodeU8((uint8_t*) payload + bufindex, &pair->id, &bufindex) != 0){
 		return 0;
 	}
+
 
 	pair->deviceptr = 0;
 	pair->triggerindex = -1;

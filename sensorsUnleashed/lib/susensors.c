@@ -65,6 +65,7 @@ process_event_t susensors_presence_success;
 process_event_t susensors_presence_fail;
 process_event_t susensors_new_observer;
 process_event_t susensors_txhandler;
+process_event_t susensors_event_handle;
 
 enum transaction_Priority_e{
 	Priority_Urgent,
@@ -137,7 +138,7 @@ void
 susensors_changed(susensors_sensor_t* s, uint8_t event)
 {
 	s->event_flag |= event;
-	process_poll(&susensors_process);
+	process_post(&susensors_process, susensors_event_handle, s);
 }
 /*---------------------------------------------------------------------------*/
 susensors_sensor_t*
@@ -332,24 +333,39 @@ static int setupPairsConnections(joinpair_t* pair){
 		pair->triggerindex = aboveEvent;
 		pair->aboveEventhandler = this->setEventhandlers(this, pair->triggers[aboveEvent]);
 		if(pair->aboveEventhandler != NULL){
-			coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlAbove,
-					above_notificationcb, pair);
+			if(pair->localhost){
+				process_post(&susensors_process, susensors_pair, pair);
+			}
+			else{
+				coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlAbove,
+						above_notificationcb, pair);
+			}
 		}
 	}
 	else if(pair->triggers[1] != -1 && pair->triggerindex < belowEvent){	//Below
 		pair->triggerindex = belowEvent;
 		pair->belowEventhandler = this->setEventhandlers(this, pair->triggers[belowEvent]);
 		if(pair->belowEventhandler != NULL){
-			coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlBelow,
-					below_notificationcb, pair);
+			if(pair->localhost){
+				process_post(&susensors_process, susensors_pair, pair);
+			}
+			else{
+				coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlBelow,
+						below_notificationcb, pair);
+			}
 		}
 	}
 	else if(pair->triggers[2] != -1 && pair->triggerindex < changeEvent){	//Change
 		pair->triggerindex = changeEvent;
 		pair->changeEventhandler = this->setEventhandlers(this, pair->triggers[changeEvent]);
 		if(pair->changeEventhandler != NULL){
-			coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlChange,
-					change_notificationcb, pair);
+			if(pair->localhost){
+				process_post(&susensors_process, susensors_pair, pair);
+			}
+			else{
+				coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlChange,
+						change_notificationcb, pair);
+			}
 		}
 	}
 	else{
@@ -427,7 +443,6 @@ void transactionRemoveNode(uip_ip6addr_t addr){
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(susensors_process, ev, data)
 {
-	static int events;
 	static susensors_sensor_t* d;
 
 	PROCESS_BEGIN();
@@ -442,6 +457,8 @@ PROCESS_THREAD(susensors_process, ev, data)
 
 	susensors_new_observer= process_alloc_event();
 	susensors_txhandler = process_alloc_event();
+
+	susensors_event_handle = process_alloc_event();
 
 	register_new_observer_notify_callback(new_observer);
 
@@ -522,29 +539,49 @@ PROCESS_THREAD(susensors_process, ev, data)
 			coap_observer_t *obs =  (coap_observer_t*) data;
 			revNotifyAdd(obs->addr);
 		}
-		else {
-			do {
-				printf("notify!\n");
-				events = 0;
-				for(d = susensors_first(); d; d = susensors_next(d)) {
-					resource_t* resource = d->data.resource;
-					if(resource != NULL){
+		else if(ev == susensors_event_handle){
+			d = (susensors_sensor_t*) data;
+			resource_t* resource = d->data.resource;
+
+			//Handle all remote pairs
+			if(resource != NULL){
+				if(d->event_flag & SUSENSORS_CHANGE_EVENT){
+					coap_notify_observers_sub(resource, strChange);
+				}
+				if(d->event_flag & SUSENSORS_BELOW_EVENT){
+					coap_notify_observers_sub(resource, strBelow);
+				}
+				if(d->event_flag & SUSENSORS_ABOVE_EVENT){
+					coap_notify_observers_sub(resource, strAbove);
+				}
+			}
+
+			//Handle all local pairs - no need to use CoAP for this
+			for(susensors_sensor_t* dd = susensors_first(); dd; dd = susensors_next(dd)){
+				for(joinpair_t* p = list_head(dd->pairs); p; p = list_item_next(p)){
+					cmp_object_t obj;
+					uint8_t payload[10];
+					int len;
+
+					if(p->localhost && p->deviceptr == dd){
+						d->status(d, ActualValue, &obj);
+						len = cp_encodeObject(payload, &obj);
+
 						if(d->event_flag & SUSENSORS_CHANGE_EVENT){
-							d->event_flag &= ~SUSENSORS_CHANGE_EVENT;
-							coap_notify_observers_sub(resource, strChange);
+							p->changeEventhandler(dd, len, payload);
 						}
 						if(d->event_flag & SUSENSORS_BELOW_EVENT){
-							d->event_flag &= ~SUSENSORS_BELOW_EVENT;
-							coap_notify_observers_sub(resource, strBelow);
+							p->belowEventhandler(dd, len, payload);
 						}
 						if(d->event_flag & SUSENSORS_ABOVE_EVENT){
-							d->event_flag &= ~SUSENSORS_ABOVE_EVENT;
-							coap_notify_observers_sub(resource, strAbove);
+							p->aboveEventhandler(dd, len, payload);
 						}
 					}
-					d->event_flag = SUSENSORS_NO_EVENT;
 				}
-			} while(events);
+			}
+
+			d->event_flag = SUSENSORS_NO_EVENT;
+
 		}
 	}
 	PROCESS_END();
