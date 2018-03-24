@@ -50,7 +50,7 @@
 #ifndef BUTTON_SENSOR_H_
 #define BUTTON_SENSOR_H_
 /*---------------------------------------------------------------------------*/
-#include "lib/susensors.h"
+#include "susensors.h"
 
 extern struct resourceconf pushbuttonconfig;
 

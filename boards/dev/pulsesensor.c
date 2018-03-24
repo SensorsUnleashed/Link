@@ -39,7 +39,7 @@
 #include "pulsesensor.h"
 #include "contiki.h"
 
-#include "lib/susensors.h"
+#include "susensors.h"
 #include "dev/sys-ctrl.h"
 #include "dev/ioc.h"
 //#include "../../apps/uartsensors/uart_protocolhandler.h"

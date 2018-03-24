@@ -42,8 +42,8 @@
 #include "board.h"
 #include "coap-observe.h"
 #include "coap-observe-client.h"
-#include "lib/susensors.h"
-#include "lib/cmp_helpers.h"
+#include "susensors.h"
+#include "cmp_helpers.h"
 #include "project-conf.h"
 
 extern process_event_t systemchange;
@@ -146,3 +146,4 @@ static void res_sysinfo_puthandler(void *request, void *response, uint8_t *buffe
 		}
 	}
 }
+

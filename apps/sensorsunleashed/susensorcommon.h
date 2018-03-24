@@ -30,21 +30,20 @@
  * This file is part of the Sensors Unleashed project
  *******************************************************************************/
 /*
- * ledindicator.h
+ * susensorcommon.h
  *
- *  Created on: 04/01/2017
+ *  Created on: 25/12/2016
  *      Author: omn
  */
 
-#ifndef SENSORSUNLEASHED_DEV_LEDINDICATOR_H_
-#define SENSORSUNLEASHED_DEV_LEDINDICATOR_H_
+#ifndef SENSORSUNLEASHED_DEV_SUSENSORCOMMON_H_
+#define SENSORSUNLEASHED_DEV_SUSENSORCOMMON_H_
 
-#include "lib/susensors.h"
+#include "rest-engine.h"
+#include "susensors.h"
 
-#define LED_INDICATOR "su/ledindicator"
-
-extern struct resourceconf ledindicatorconfig;
-
-susensors_sensor_t* addASULedIndicator(const char* name, struct resourceconf* config, struct ledRuntime* extra);
-
-#endif /* SENSORSUNLEASHED_DEV_LEDINDICATOR_H_ */
+int suconfig(struct susensors_sensor* this, int type, void* data);
+void setResource(struct susensors_sensor* this, resource_t* res);
+void setEventU8(struct susensors_sensor* this, int dir, uint8_t step);
+void setEventU16(struct susensors_sensor* this, int dir, uint8_t step);
+#endif /* SENSORSUNLEASHED_DEV_SUSENSORCOMMON_H_ */

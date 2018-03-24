@@ -29,43 +29,22 @@
  *
  * This file is part of the Sensors Unleashed project
  *******************************************************************************/
-#undef PROJECT_CONF_H_	//TODO: Workaround to make eclipse show the defines right
-#ifndef PROJECT_CONF_H_
-#define PROJECT_CONF_H_
+/*
+ * ledindicator.h
+ *
+ *  Created on: 04/01/2017
+ *      Author: omn
+ */
 
-#define SU_VER_MAJOR	0	//Is increased when there has been changes to the protocol, which is not backwards compatible
-#define SU_VER_MINOR	0	//Is increased if the protocol is changed, but still backwards compatible
-#define SU_VER_DEV		1	//Is increased for every minor fix
+#ifndef SENSORSUNLEASHED_DEV_LEDINDICATOR_H_
+#define SENSORSUNLEASHED_DEV_LEDINDICATOR_H_
 
-#define LOG_CONF_LEVEL_MAC  		LOG_LEVEL_DBG
-//#define LOG_CONF_LEVEL_TCPIP		LOG_LEVEL_INFO
-#define LOG_CONF_LEVEL_IPV6			LOG_LEVEL_INFO
-#define LOG_CONF_LEVEL_FRAMER		LOG_LEVEL_INFO
-//#define LOG_CONF_LEVEL_6LOWPAN		LOG_LEVEL_INFO
+#include "susensors.h"
 
-#define WATCHDOG_CONF_ENABLE	0
+#define LED_INDICATOR "su/ledindicator"
 
-//#define UART_CONF_ENABLE	0
+extern struct resourceconf ledindicatorconfig;
 
-//Enable uart receive
-#define UART0_CONF_WITH_INPUT	1
+susensors_sensor_t* addASULedIndicator(const char* name, struct resourceconf* config, struct ledRuntime* extra);
 
-/* Pre-allocated memory for loadable modules heap space (in bytes)*/
-#define MMEM_CONF_SIZE 2048
-
-/* Enable client-side support for COAP observe */
-#define COAP_OBSERVE_CLIENT 1
-
-/* The number of concurrent messages that can be stored for retransmission in the transaction layer. */
-#define COAP_MAX_OPEN_TRANSACTIONS     10
-
-/* Maximum number of failed request attempts before action */
-#define COAP_MAX_ATTEMPTS              3
-
-#define DBG_CONF_USB 1 /** All debugging over UART by default */
-
-
-#define HAS_MAINSDETECT		1
-#define HAS_PULSECOUNTER	1
-
-#endif /* __PROJECT_ERBIUM_CONF_H__ */
+#endif /* SENSORSUNLEASHED_DEV_LEDINDICATOR_H_ */

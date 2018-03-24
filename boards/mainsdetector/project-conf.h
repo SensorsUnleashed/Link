@@ -29,31 +29,18 @@
  *
  * This file is part of the Sensors Unleashed project
  *******************************************************************************/
-#ifndef RELAY_H_
-#define RELAY_H_
-/* -------------------------------------------------------------------------- */
+#undef PROJECT_CONF_H_	//TODO: Workaround to make eclipse show the defines right
+#ifndef PROJECT_CONF_H_
+#define PROJECT_CONF_H_
 
-#include "lib/susensors.h"
+#include "../susystem-conf.h"
+//#define LOG_CONF_LEVEL_MAC  		LOG_LEVEL_DBG
+//#define LOG_CONF_LEVEL_TCPIP		LOG_LEVEL_INFO
+//#define LOG_CONF_LEVEL_IPV6		LOG_LEVEL_INFO
+//#define LOG_CONF_LEVEL_FRAMER		LOG_LEVEL_INFO
+//#define LOG_CONF_LEVEL_6LOWPAN	LOG_LEVEL_INFO
 
-extern struct resourceconf relayconfigs;
+#define HAS_MAINSDETECT		1
+//#define HAS_PULSECOUNTER	1
 
-susensors_sensor_t* addASURelay(const char* name, struct resourceconf* config);
-
-#ifdef RELAY_CONF_PIN
-#define RELAY_PIN        RELAY_CONF_PIN
-#else
-#define RELAY_PIN        4
-#endif
-#ifdef RELAY_CONF_PORT
-#define RELAY_PORT       RELAY_CONF_PORT
-#else
-#define RELAY_PORT       GPIO_A_NUM
-#endif
-
-#define RELAY_ERROR             (1)
-#define RELAY_SUCCESS           0x00
-
-#define RELAY_ACTUATOR "su/powerrelay"
-extern struct susensors_sensor relay;
-
-#endif /* RELAY_H_ */
+#endif /* __PROJECT_ERBIUM_CONF_H__ */

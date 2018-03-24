@@ -33,8 +33,6 @@
 #include "contiki.h"
 #include "dev/leds.h"
 
-//#include "../../apps/uartsensors/uart_protocolhandler.h"
-#include "rest-engine.h"
 #include "susensorcommon.h"
 #include "board.h"
 

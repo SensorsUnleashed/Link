@@ -29,21 +29,27 @@
  *
  * This file is part of the Sensors Unleashed project
  *******************************************************************************/
-/*
- * susensorcommon.h
- *
- *  Created on: 25/12/2016
- *      Author: omn
- */
+#ifndef MAINSDETECT_H_
+#define MAINSDETECT_H_
 
-#ifndef SENSORSUNLEASHED_DEV_SUSENSORCOMMON_H_
-#define SENSORSUNLEASHED_DEV_SUSENSORCOMMON_H_
+#include "susensors.h"
 
-#include "rest-engine.h"
-#include "lib/susensors.h"
+extern struct resourceconf mainsdetectconfig;
 
-int suconfig(struct susensors_sensor* this, int type, void* data);
-void setResource(struct susensors_sensor* this, resource_t* res);
-void setEventU8(struct susensors_sensor* this, int dir, uint8_t step);
-void setEventU16(struct susensors_sensor* this, int dir, uint8_t step);
-#endif /* SENSORSUNLEASHED_DEV_SUSENSORCOMMON_H_ */
+susensors_sensor_t* addASUMainsDetector(const char* name, struct resourceconf* config);
+
+#ifdef MAINSDETECT_CONF_PIN
+#define MAINSDETECT_PIN        MAINSDETECT_CONF_PIN
+#else
+#define MAINSDETECT_PIN        7
+#endif
+#ifdef MAINSDETECT_CONF_PORT
+#define MAINSDETECT_PORT       MAINSDETECT_CONF_PORT
+#else
+#define MAINSDETECT_PORT       GPIO_A_NUM
+#endif
+
+#define MAINSDETECT_ACTUATOR "su/mainsdetect"
+
+#endif /* MAINSDETECT_H_ */
+

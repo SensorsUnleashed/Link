@@ -29,27 +29,31 @@
  *
  * This file is part of the Sensors Unleashed project
  *******************************************************************************/
-#ifndef MAINSDETECT_H_
-#define MAINSDETECT_H_
+#ifndef RELAY_H_
+#define RELAY_H_
+/* -------------------------------------------------------------------------- */
 
-#include "lib/susensors.h"
+#include "susensors.h"
 
-extern struct resourceconf mainsdetectconfig;
+extern struct resourceconf relayconfigs;
 
-susensors_sensor_t* addASUMainsDetector(const char* name, struct resourceconf* config);
+susensors_sensor_t* addASURelay(const char* name, struct resourceconf* config);
 
-#ifdef MAINSDETECT_CONF_PIN
-#define MAINSDETECT_PIN        MAINSDETECT_CONF_PIN
+#ifdef RELAY_CONF_PIN
+#define RELAY_PIN        RELAY_CONF_PIN
 #else
-#define MAINSDETECT_PIN        7
+#define RELAY_PIN        4
 #endif
-#ifdef MAINSDETECT_CONF_PORT
-#define MAINSDETECT_PORT       MAINSDETECT_CONF_PORT
+#ifdef RELAY_CONF_PORT
+#define RELAY_PORT       RELAY_CONF_PORT
 #else
-#define MAINSDETECT_PORT       GPIO_A_NUM
+#define RELAY_PORT       GPIO_A_NUM
 #endif
 
-#define MAINSDETECT_ACTUATOR "su/mainsdetect"
+#define RELAY_ERROR             (1)
+#define RELAY_SUCCESS           0x00
 
-#endif /* MAINSDETECT_H_ */
+#define RELAY_ACTUATOR "su/powerrelay"
+extern struct susensors_sensor relay;
 
+#endif /* RELAY_H_ */

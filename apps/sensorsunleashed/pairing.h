@@ -43,7 +43,7 @@
 #include "mmem.h"
 #include "net/ipv6/uiplib.h"
 #include "lib/list.h"
-#include "lib/susensors.h"
+#include "susensors.h"
 
 //We need to have a way to keep track of which sensor a notification belongs to
 enum datatype_e{
@@ -70,12 +70,18 @@ struct __attribute__ ((__packed__)) joinpair_s{
 	eventhandler_ptr belowEventhandler;
 	eventhandler_ptr changeEventhandler;
 
-	void* deviceptr;
+	void* deviceptr;		//Which device this pair belong to
+	void* localdeviceptr;	//In case its a local pair, this is the device pointer
 	uip_ip6addr_t destip;
 	char nodediscuri[25];
 };
 
 typedef struct joinpair_s joinpair_t;
+
+void pairing_init();
+
+void pair_register_add_callback(void(*cb)(joinpair_t*));
+void pair_register_rem_callback(void(*cb)(joinpair_t*));
 
 int8_t parseMessage(joinpair_t* pair);
 
@@ -91,6 +97,7 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 int8_t pairing_handle(susensors_sensor_t* s);
 void store_SensorPair(susensors_sensor_t* s, uint8_t* data, uint32_t len);
 void restore_SensorPairs(susensors_sensor_t* s);
+
 
 
 #endif /* SENSORSUNLEASHED_PAIRING_H_ */

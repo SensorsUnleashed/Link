@@ -42,7 +42,7 @@
 #include "dev/leds.h"
 #include "coap.h"
 #include "board.h"
-#include "lib/susensors.h"
+#include "../../apps/sensorsunleashed/susensors.h"
 #include "../../sensorsUnleashed/pairing.h"
 //#include "../../apps/uartsensors/uart_protocolhandler.h"
 

@@ -34,7 +34,11 @@
 
 #include "contiki.h"
 #include "lib/list.h"
-#include "lib/cmp_helpers.h"
+#include "cmp_helpers.h"
+
+#define SU_VER_MAJOR	0	//Is increased when there has been changes to the protocol, which is not backwards compatible
+#define SU_VER_MINOR	0	//Is increased if the protocol is changed, but still backwards compatible
+#define SU_VER_DEV		2	//Is increased for every minor fix
 
 #include "coap-observe-client.h"
 #define DEVICES_MAX		10
@@ -143,11 +147,6 @@ susensors_sensor_t* susensors_first(void);
 int missingJustCalled(uip_ip6addr_t* srcip);
 
 void susensors_changed(susensors_sensor_t* s, uint8_t event);
-
-extern process_event_t susensors_event;
-extern process_event_t susensors_pair;
-extern process_event_t susensors_service;
-extern process_event_t susensors_presence;
 
 PROCESS_NAME(susensors_process);
 

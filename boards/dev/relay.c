@@ -40,7 +40,6 @@
 #define RELAY_PORT_BASE          GPIO_PORT_TO_BASE(RELAY_PORT)
 #define RELAY_PIN_MASK           GPIO_PIN_MASK(RELAY_PIN)
 
-#include "rest-engine.h"
 #include "susensorcommon.h"
 
 struct susensors_sensor relay;

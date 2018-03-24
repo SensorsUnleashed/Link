@@ -30,6 +30,7 @@
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1903254305" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.368946192" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
@@ -73,6 +74,7 @@
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1455889943" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.1674360240" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
@@ -118,6 +120,7 @@
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/contiki-ng}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.165673256" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
@@ -162,6 +165,7 @@
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.988405560" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.2100301470" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
@@ -206,6 +210,7 @@
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.75704674" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.734164944" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
@@ -251,6 +256,7 @@
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1536585735" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.917813914" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
@@ -296,6 +302,7 @@
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.45788462" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
 									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.521902263" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
@@ -311,12 +318,252 @@
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
 		</cconfiguration>
+		<cconfiguration id="0.1625467547.219522802.1195938618.963079784">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.1625467547.219522802.1195938618.963079784" moduleId="org.eclipse.cdt.core.settings" name="Relayboard RadioOne">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="0.1625467547.219522802.1195938618.963079784" name="Relayboard RadioOne" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="0.1625467547.219522802.1195938618.963079784." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.65747219" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.65747219.1952387310" name=""/>
+							<builder buildPath="${workspace_loc:/SensorsUnleashed_NG/boards/relayboard}" cleanBuildTarget="clean TARGET=radioone" id="org.eclipse.cdt.build.core.settings.default.builder.1846251179" incrementalBuildTarget="all TARGET=radioone" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.657686900" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.409252202" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1711426060" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1224037601" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.810260082" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.884938912" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1843628485" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
+									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/contiki-ng}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.191843045" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
+									<listOptionValue builtIn="false" value="UIP_CONF_IPV6_RPL=1"/>
+									<listOptionValue builtIn="false" value="UIP_CONF_IPV6_RPL_LITE=1"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1038449899" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
+		</cconfiguration>
+		<cconfiguration id="0.1625467547.219522802.1195938618.963079784.1784998906">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.1625467547.219522802.1195938618.963079784.1784998906" moduleId="org.eclipse.cdt.core.settings" name="Mainsdetector RadioOne">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="0.1625467547.219522802.1195938618.963079784.1784998906" name="Mainsdetector RadioOne" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="0.1625467547.219522802.1195938618.963079784.1784998906." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1435830303" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.1435830303.1282523115" name=""/>
+							<builder buildPath="${workspace_loc:/SensorsUnleashed_NG/boards/mainsdetector}" cleanBuildTarget="clean TARGET=radioone" id="org.eclipse.cdt.build.core.settings.default.builder.881264532" incrementalBuildTarget="all TARGET=radioone" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.2073625470" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.112563495" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.748820540" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1547137829" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1154898384" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1309249058" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1600998655" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
+									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/contiki-ng}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.127226111" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
+									<listOptionValue builtIn="false" value="UIP_CONF_IPV6_RPL=1"/>
+									<listOptionValue builtIn="false" value="UIP_CONF_IPV6_RPL_LITE=1"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.135568211" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
+		</cconfiguration>
+		<cconfiguration id="0.1625467547.219522802.1195938618.963079784.1130536724">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.1625467547.219522802.1195938618.963079784.1130536724" moduleId="org.eclipse.cdt.core.settings" name="Relayboard su-cc2538-1">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="0.1625467547.219522802.1195938618.963079784.1130536724" name="Relayboard su-cc2538-1" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="0.1625467547.219522802.1195938618.963079784.1130536724." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.507172311" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.507172311.1794778130" name=""/>
+							<builder buildPath="${workspace_loc:/SensorsUnleashed_NG/boards/relayboard}" cleanBuildTarget="clean TARGET=su-cc2538-1" id="org.eclipse.cdt.build.core.settings.default.builder.1280754873" incrementalBuildTarget="all TARGET=su-cc2538-1" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.544561731" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.2035668737" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1790778664" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.280829369" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1857034001" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.809899015" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.857878644" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
+									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/contiki-ng}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.1865819217" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
+									<listOptionValue builtIn="false" value="UIP_CONF_IPV6_RPL=1"/>
+									<listOptionValue builtIn="false" value="UIP_CONF_IPV6_RPL_LITE=1"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.469162327" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
+		</cconfiguration>
+		<cconfiguration id="0.1625467547.219522802.1195938618.963079784.1784998906.405060489">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.1625467547.219522802.1195938618.963079784.1784998906.405060489" moduleId="org.eclipse.cdt.core.settings" name="Mainsdetector su-cc2538-1">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="0.1625467547.219522802.1195938618.963079784.1784998906.405060489" name="Mainsdetector su-cc2538-1" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="0.1625467547.219522802.1195938618.963079784.1784998906.405060489." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1945675201" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.1945675201.1450851671" name=""/>
+							<builder buildPath="${workspace_loc:/SensorsUnleashed_NG/boards/mainsdetector}" cleanBuildTarget="clean TARGET=su-cc2538-1" id="org.eclipse.cdt.build.core.settings.default.builder.831115700" incrementalBuildTarget="all TARGET=su-cc2538-1" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.815930843" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1144787306" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.874910808" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1169466157" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.397279635" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.2003763512" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1235489388" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
+									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/contiki-ng}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.200313817" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
+									<listOptionValue builtIn="false" value="UIP_CONF_IPV6_RPL=1"/>
+									<listOptionValue builtIn="false" value="UIP_CONF_IPV6_RPL_LITE=1"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1667643723" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
+		</cconfiguration>
+		<cconfiguration id="0.1625467547.219522802.1195938618.963079784.1561759284">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.1625467547.219522802.1195938618.963079784.1561759284" moduleId="org.eclipse.cdt.core.settings" name="Debugdevice RadioOne">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="0.1625467547.219522802.1195938618.963079784.1561759284" name="Debugdevice RadioOne" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="0.1625467547.219522802.1195938618.963079784.1561759284." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.287827325" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.287827325.2110553387" name=""/>
+							<builder buildPath="${workspace_loc:/SensorsUnleashed_NG/boards/debugdevice}" cleanBuildTarget="clean TARGET=radioone" id="org.eclipse.cdt.build.core.settings.default.builder.1469640687" incrementalBuildTarget="all TARGET=radioone" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1787479896" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1380680034" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1358333848" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.71925634" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1956713856" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1125182588" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1687896528" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/lib/gcc/arm-none-eabi/5.2.1/include"/>
+									<listOptionValue builtIn="false" value="/media/omn/Storage/compilers/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/contiki-ng}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SensorsUnleashed_NG/boards}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.602514739" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="COAP_OBSERVE_CLIENT=1"/>
+									<listOptionValue builtIn="false" value="UIP_CONF_IPV6_RPL=1"/>
+									<listOptionValue builtIn="false" value="UIP_CONF_IPV6_RPL_LITE=1"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.478356514" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
+		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="SensorsUnleashed_NG.null.1346226451" name="SensorsUnleashed_NG"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Relayboard">
+			<resource resourceType="PROJECT" workspacePath="/SensorsUnleashed_NG"/>
+		</configuration>
+		<configuration configurationName="Mainsdetector su-cc2538-1">
+			<resource resourceType="PROJECT" workspacePath="/SensorsUnleashed_NG"/>
+		</configuration>
+		<configuration configurationName="Nonet"/>
+		<configuration configurationName="Relayboard su-cc2538-1">
+			<resource resourceType="PROJECT" workspacePath="/SensorsUnleashed_NG"/>
+		</configuration>
 		<configuration configurationName="SU-cc2538-1">
 			<resource resourceType="PROJECT" workspacePath="/SensorsUnleashed_NG"/>
 		</configuration>
@@ -327,6 +574,9 @@
 			<resource resourceType="PROJECT" workspacePath="/SensorsUnleashed_NG"/>
 		</configuration>
 		<configuration configurationName="Default">
+			<resource resourceType="PROJECT" workspacePath="/SensorsUnleashed_NG"/>
+		</configuration>
+		<configuration configurationName="Mainsdetector">
 			<resource resourceType="PROJECT" workspacePath="/SensorsUnleashed_NG"/>
 		</configuration>
 		<configuration configurationName="Border Router">
@@ -343,22 +593,37 @@
 		<scannerConfigBuildInfo instanceId="0.1625467547.219522802.1195938618.1412842774">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="0.1625467547.219522802.1195938618.963079784.1130536724">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="0.1625467547.219522802.1195938618.1271596114.1449914718">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="0.1625467547">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="0.1625467547.219522802.1195938618.963079784.1784998906.405060489">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="0.1625467547.219522802.1195938618.963079784.1561759284">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="0.1625467547.219522802">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="0.1625467547.219522802.1195938618.963079784.1784998906">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="0.1625467547.219522802.1195938618">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="0.1625467547.219522802.1195938618.963079784">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="0.1625467547.219522802.1195938618.1271596114">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="0.1625467547.219522802.1195938618.1271596114.1449914718.579153427">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="0.1625467547">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>

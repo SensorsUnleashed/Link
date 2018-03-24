@@ -36,7 +36,7 @@
  *      Author: omn
  */
 #include <stdlib.h>
-#include "../sensorsUnleashed/pairing.h"
+#include "pairing.h"
 
 #include "contiki.h"
 #include "cfs/cfs.h"
@@ -47,7 +47,6 @@
 #include "net/ipv6/uip.h"
 #include "lib/memb.h"
 #include "rpl.h"
-#include "susensors.h"
 
 #define DEBUG 1
 #if DEBUG
@@ -75,6 +74,21 @@ static uint8_t buffer[BUFFERSIZE] __attribute__ ((aligned (4))) = { 0 };
 static uint32_t bufsize = 0;
 
 MEMB(pairings, joinpair_t, 20);
+
+void pairing_init(){
+	//Init dynamic memory	(Default 4096Kb)
+	mmem_init();
+}
+
+static void (*pair_add_notify)(joinpair_t*) = 0;
+static void (*pair_rem_notify)(joinpair_t*) = 0;
+
+void pair_register_add_callback(void (*cb)(joinpair_t*)){
+	pair_add_notify = cb;
+}
+void pair_register_rem_callback(void (*cb)(joinpair_t*)){
+	pair_rem_notify = cb;
+}
 
 
 static int addPrefix(uip_ip6addr_t* ip6addr){
@@ -149,6 +163,10 @@ uint8_t pairing_remove_all(susensors_sensor_t* s){
 
 	while(list_head(s->pairs) != 0){
 		joinpair_t* p = list_pop(s->pairs);
+		pair_rem_notify(p);
+		free(p->dsturlAbove);
+		free(p->dsturlBelow);
+		free(p->dsturlChange);
 		mmem_free(&p->dsturl);
 		mmem_free(&p->srcurl);
 	}
@@ -286,6 +304,10 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 	for(int i=0; i<indexlen; i++){
 		for(joinpair_t* p = list_head(s->pairs); p; p = list_item_next(p)){
 			if(p->id == arr[i]){
+				pair_rem_notify(p);
+				free(p->dsturlAbove);
+				free(p->dsturlBelow);
+				free(p->dsturlChange);
 				mmem_free(&p->dsturl);
 				mmem_free(&p->srcurl);
 				list_remove(s->pairs, p);
@@ -327,6 +349,8 @@ int8_t parseMessage(joinpair_t* pair){
 	 * */
 	stringlen = cp_decodeU16Array((uint8_t*) payload + bufindex, (uint16_t*)&pair->destip, &bufindex);
 	stringlen *= 2;	//We work as 8bit
+	pair->localhost = 0;
+
 	if(stringlen < 0){
 		return -1;
 	}
@@ -347,7 +371,6 @@ int8_t parseMessage(joinpair_t* pair){
 	if(cp_decode_string((uint8_t*) payload + bufindex, &stringbuf[0], &stringlen, &bufindex) != 0){
 		return -2;
 	}
-	//stringlen++;	//We need the /0 also
 
 	if(mmem_alloc(&pair->dsturl, stringlen+1) == 0){
 		return -5;
@@ -356,6 +379,7 @@ int8_t parseMessage(joinpair_t* pair){
 
 	//Event triggers
 	if(cp_decodeS8Array((uint8_t*) payload + bufindex, pair->triggers, &bufindex) != 0){
+		mmem_free(&pair->dsturl);
 		return -3;
 	}
 
@@ -378,19 +402,31 @@ int8_t parseMessage(joinpair_t* pair){
 
 	stringlen = 100;
 	if(cp_decode_string((uint8_t*) payload + bufindex, &stringbuf[0], &stringlen, &bufindex) != 0){
+		free(pair->dsturlAbove);
+		free(pair->dsturlBelow);
+		free(pair->dsturlChange);
+		mmem_free(&pair->dsturl);
 		return -4;
 	}
 	stringlen++;	//We need the /0 also
 	if(mmem_alloc(&pair->srcurl, stringlen) == 0){
+		free(pair->dsturlAbove);
+		free(pair->dsturlBelow);
+		free(pair->dsturlChange);
 		return -3;
 	}
 	memcpy((char*)MMEM_PTR(&pair->srcurl), (char*)stringbuf, stringlen);
 
 	if(cp_decodeU8((uint8_t*) payload + bufindex, &pair->id, &bufindex) != 0){
+		free(pair->dsturlAbove);
+		free(pair->dsturlBelow);
+		free(pair->dsturlChange);
+		mmem_free(&pair->dsturl);
+		mmem_free(&pair->srcurl);
 		return 0;
 	}
 
-
+	pair->localdeviceptr = 0;
 	pair->deviceptr = 0;
 	pair->triggerindex = -1;
 
@@ -435,11 +471,16 @@ int8_t pairing_handle(susensors_sensor_t* s){
 	joinpair_t* pair = NULL;
 
 	for(pair = (joinpair_t *)list_head(pairings_list); pair; pair = pair->next) {
-		if(pair->dsturl.size == p->dsturl.size){
-			if(strncmp((char*)MMEM_PTR(&pair->dsturl),(char*)MMEM_PTR(&p->dsturl), pair->dsturl.size) == 0){
-				memb_free(&pairings, p);
-				return -5;
-			}
+		int test = pair->dsturl.size == p->dsturl.size;
+		test &= (memcmp(pair->destip.u8, p->destip.u8, 16) == 0);
+		if(test){
+			free(p->dsturlAbove);
+			free(p->dsturlBelow);
+			free(p->dsturlChange);
+			mmem_free(&p->dsturl);
+			mmem_free(&p->srcurl);
+			memb_free(&pairings, p);
+			return -5;
 		}
 	}
 
@@ -451,8 +492,7 @@ int8_t pairing_handle(susensors_sensor_t* s){
 
 	PRINTF("Pair dst: %s, triggers: 0x%X\n", (char*)MMEM_PTR(&p->dsturl), (unsigned int)p->triggers);
 
-	//Signal to the susensor class, that a new pair/binding is ready.
-	process_post(&susensors_process, susensors_pair, p);
+	pair_add_notify(p);
 
 	lastid = lastid < id ? id : lastid;
 

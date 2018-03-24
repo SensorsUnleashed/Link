@@ -33,13 +33,14 @@
 
 #include "contiki.h"
 
-#include "lib/susensors.h"
+#include "susensors.h"
 #include "lib/memb.h"
-#include "../pairing.h"
+#include "pairing.h"
 #include "rest-engine.h"
 #include "coap-observe.h"
-#include "lib/cmp.h"
+#include "cmp.h"
 #include "reverseNotify.h"
+#include "coap-engine.h"
 
 #define DEBUG 1
 #if DEBUG
@@ -57,7 +58,6 @@ const char* strAbove = "/above";
 const char* strBelow = "/below";
 const char* strChange = "/change";
 
-process_event_t susensors_event;
 process_event_t susensors_pair;
 process_event_t susensors_pair_fail;
 process_event_t susensors_presence;
@@ -99,14 +99,40 @@ LIST(transactions);
 MEMB(sudevices_memb, susensors_sensor_t, DEVICES_MAX);
 MEMB(transactions_memb, transaction_t, 30);
 
+void transactionAdd(process_event_t ev, process_data_t data, transaction_Priority_t priority, uip_ip6addr_t addr);
+
+
 //A node has requested to observe one of our resources
 void new_observer(coap_observer_t *obs){
 	process_post(&susensors_process, susensors_new_observer, obs);
 }
 
+void pair_added(joinpair_t* pair){
+	transactionAdd(susensors_pair, pair, Priority_High, pair->destip);
+	process_post(&susensors_process, susensors_txhandler, NULL);
+}
+
+void pair_removed(joinpair_t* pair){
+	if(pair->triggers[0] != -1){
+		coap_remove_observer_by_uri(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlAbove);
+	}
+	if(pair->triggers[1] != -1){
+		coap_remove_observer_by_uri(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlBelow);
+	}
+	if(pair->triggers[2] != -1){
+		coap_remove_observer_by_uri(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlChange);
+	}
+}
+
 void initSUSensors(){
 	list_init(sudevices);
 	memb_init(&sudevices_memb);
+
+	/* Initialize the REST engine. */
+	rest_init_engine();
+	coap_init_engine();
+
+	pairing_init();
 }
 
 susensors_sensor_t* addSUDevices(susensors_sensor_t* device){
@@ -323,6 +349,14 @@ static void txPresence(revlookup_t* rl){
 	}
 }
 
+void localPairConnect(joinpair_t* pair){
+	if(pair->localdeviceptr != 0) return;
+	for(susensors_sensor_t* d = susensors_first(); d; d = susensors_next(d)){
+		if(strcmp((char*)MMEM_PTR(&pair->dsturl), d->type) == 0){
+			pair->localdeviceptr = d;
+		}
+	}
+}
 /* Go through all the devices and all the pairs
  * Return 0 on finished all pairs else 1
  * */
@@ -334,6 +368,7 @@ static int setupPairsConnections(joinpair_t* pair){
 		pair->aboveEventhandler = this->setEventhandlers(this, pair->triggers[aboveEvent]);
 		if(pair->aboveEventhandler != NULL){
 			if(pair->localhost){
+				localPairConnect(pair);
 				process_post(&susensors_process, susensors_pair, pair);
 			}
 			else{
@@ -347,6 +382,7 @@ static int setupPairsConnections(joinpair_t* pair){
 		pair->belowEventhandler = this->setEventhandlers(this, pair->triggers[belowEvent]);
 		if(pair->belowEventhandler != NULL){
 			if(pair->localhost){
+				localPairConnect(pair);
 				process_post(&susensors_process, susensors_pair, pair);
 			}
 			else{
@@ -360,6 +396,7 @@ static int setupPairsConnections(joinpair_t* pair){
 		pair->changeEventhandler = this->setEventhandlers(this, pair->triggers[changeEvent]);
 		if(pair->changeEventhandler != NULL){
 			if(pair->localhost){
+				localPairConnect(pair);
 				process_post(&susensors_process, susensors_pair, pair);
 			}
 			else{
@@ -447,7 +484,6 @@ PROCESS_THREAD(susensors_process, ev, data)
 
 	PROCESS_BEGIN();
 
-	susensors_event = process_alloc_event();
 	susensors_pair = process_alloc_event();
 	susensors_pair_fail = process_alloc_event();
 
@@ -460,7 +496,10 @@ PROCESS_THREAD(susensors_process, ev, data)
 
 	susensors_event_handle = process_alloc_event();
 
+	//Register callbacks
 	register_new_observer_notify_callback(new_observer);
+	pair_register_add_callback(pair_added);
+	pair_register_rem_callback(pair_removed);
 
 	list_t rlist = revNotifyInit();
 	if(list_length(rlist) > 0){
@@ -563,7 +602,8 @@ PROCESS_THREAD(susensors_process, ev, data)
 					uint8_t payload[10];
 					int len;
 
-					if(p->localhost && p->deviceptr == dd){
+					if(p->localhost && p->localdeviceptr == d){
+
 						d->status(d, ActualValue, &obj);
 						len = cp_encodeObject(payload, &obj);
 
@@ -579,9 +619,7 @@ PROCESS_THREAD(susensors_process, ev, data)
 					}
 				}
 			}
-
 			d->event_flag = SUSENSORS_NO_EVENT;
-
 		}
 	}
 	PROCESS_END();
