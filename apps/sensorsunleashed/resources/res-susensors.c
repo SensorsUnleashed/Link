@@ -42,8 +42,8 @@
 #include "dev/leds.h"
 #include "coap.h"
 #include "board.h"
-#include "../../apps/sensorsunleashed/susensors.h"
-#include "../../sensorsUnleashed/pairing.h"
+#include "susensors.h"
+#include "pairing.h"
 //#include "../../apps/uartsensors/uart_protocolhandler.h"
 
 #define MAX_RESOURCES	20

@@ -47,7 +47,6 @@
 #include "project-conf.h"
 
 extern process_event_t systemchange;
-extern process_event_t susensors_service;
 static void res_sysinfo_gethandler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_sysinfo_puthandler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 /* A simple actuator example. Toggles the red led */
