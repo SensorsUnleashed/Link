@@ -462,7 +462,9 @@ int transactionStartNext(){
 }
 
 void transactionRemove(){
-	activeTransactions--;
+	if(activeTransactions > 0){
+		activeTransactions--;
+	}
 }
 
 void transactionRemoveNode(uip_ip6addr_t addr){
