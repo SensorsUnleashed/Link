@@ -247,3 +247,37 @@ void setEventU16(struct susensors_sensor* this, int dir, uint8_t step){
 		susensors_changed(this, event);
 	}
 }
+
+void setEventU32(struct susensors_sensor* this, int dir, uint8_t step){
+	struct resourceconf* c = (struct resourceconf*)(this->data.config);
+	struct relayRuntime* r = (struct relayRuntime*)(this->data.runtime);
+	uint8_t event = 0;
+
+	r->hasEvent = NoEventActive;
+	if(dir < 0){
+		if(r->LastValue.as.u32 <= c->BelowEventAt.as.u32 && (c->eventsActive & BelowEventActive)){
+			r->hasEvent = BelowEventActive;
+			event |= SUSENSORS_BELOW_EVENT;
+		}
+	}
+	else{
+		if(r->LastValue.as.u32 >= c->AboveEventAt.as.u32 && (c->eventsActive & AboveEventActive)){
+			r->hasEvent = AboveEventActive;
+			event |= SUSENSORS_ABOVE_EVENT;
+		}
+	}
+
+	r->ChangeEventAcc.as.u32 += step;
+	if(c->ChangeEvent.as.u32 <= r->ChangeEventAcc.as.u32){
+		r->ChangeEventAcc.as.u32 = 0;
+		if(c->eventsActive & ChangeEventActive){
+			r->hasEvent |= ChangeEventActive;
+			event |= SUSENSORS_CHANGE_EVENT;
+		}
+	}
+
+	if(r->hasEvent != NoEventActive){
+		r->LastEventValue = r->LastValue;
+		susensors_changed(this, event);
+	}
+}

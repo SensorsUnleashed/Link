@@ -67,6 +67,12 @@ enum su_basic_actions {
 	setToggle,
 };
 
+enum su_timer_actions{
+	timerStop,
+	timerStart,
+	timerRestart,
+};
+
 enum susensors_configcmd {
 	SUSENSORS_EVENTSETUP_SET,
 	SUSENSORS_EVENTSETUP_GET,
@@ -89,6 +95,7 @@ enum susensors_event_cmd {
 #define SUSENSORS_ACTIVE 	129 /* ACTIVE => 0 -> turn off, 1 -> turn on */
 #define SUSENSORS_READY 	130 /* read only */
 
+//TODO: Rename this to something common
 struct relayRuntime {
 	uint8_t enabled;
 	uint8_t hasEvent;

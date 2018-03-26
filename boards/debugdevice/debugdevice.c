@@ -13,6 +13,7 @@
 #include "ledindicator.h"
 #include "pulsesensor.h"
 #include "mainsdetect.h"
+#include "timerdevice.h"
 #include "resources/res-susensors.h"
 #include "cfs-coffee-arch.h"
 #include "rpl.h"
@@ -75,6 +76,10 @@ PROCESS_THREAD(device_process, ev, data)
 		setResource(d, res_susensor_activate(d));
 	}
 	d = addASUButtonSensor(BUTTON_SENSOR, &pushbuttonconfig);
+	if(d != NULL){
+		setResource(d, res_susensor_activate(d));
+	}
+	d = addASUTimerDevice(TIMER_DEVICE, &timerconfig);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}

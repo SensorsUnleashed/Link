@@ -1,27 +1,53 @@
-# EEProm sensors
-This is a module, that will make the board retrieve settings from a i2c attached eeprom.
+# Devices
+## Button Sensor
+## LED Indicator
+## Mainsdetector
+## Pulse sensor
+## Relay
+## Timer
+A timer will run from zero and up. The interval is in seconds and will wrap every 388days = 33554432 seconds
+The timer will keep counting - it will not automatically stop.
 
-The setup can contain system infos, log-data and even sensors to setup.
+Example:
+Set the above event to 180 seconds
+Set the below event to 60 seconds.
+Pair the above event with the reset action.
 
-
-## Configuration options
-
-### sensors
-1. Pulse sensors  
-GPIO pin
-Interrupt
-Timers
-To be considered
-
-CCP pins. s. 39
-Compare: The GPTM is incremented or decremented by programmed events on the CCP input. The GPTM compares the current value with a stored value and generates an interrupt when a match occurs.
-  
-GPT_0 16bit used for usec delay  
-We use GPT_1 16bit for pulse counting
-
-2. GPIO level sensing
+1. A timer is started
+2. After 1 minute, a below event will fire.
+3. After Another 2 minutes the above event will fire, and because of the timer
+above event is tied to the restart event will start to count from 0 again.
 
 
+### Get value
+If requested, the time till expiration will be returned.
 
-## Operation
-Will be the same as with the uart sensors.
+
+### Events
+Above event:
+  Event fired when timer > setup
+  Attach this event to the reset action to have it reset countinously.
+
+Below event:
+  Event fired when timer > setup
+  Set it to 0 to have it fire an event on reset.
+
+Change event:
+  Event fired when delta time >= setup
+  Sets the amount of seconds between an event.
+  E.g set the change event to 60, and the event will be fired once every minute.
+
+### Actions
+Stop counting:
+This will pause the current events
+
+Start counting:
+This will continue from where it was
+
+Reset:
+This will reset the counter to 0 and start from there.
+
+Direction: (TODO)
+Default is up, but it can be changed setting this action.
+
+# Pulse Counter
