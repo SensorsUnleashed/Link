@@ -41,6 +41,7 @@
 #include "cmp.h"
 #include "reverseNotify.h"
 #include "coap-engine.h"
+#include "pairgroup.h"
 
 #define DEBUG 1
 #if DEBUG
@@ -107,20 +108,29 @@ void new_observer(coap_observer_t *obs){
 	process_post(&susensors_process, susensors_new_observer, obs);
 }
 
+/* Called when a pair is added outside boot-up*/
 void pair_added(joinpair_t* pair){
+
 	transactionAdd(susensors_pair, pair, Priority_High, pair->destip);
 	process_post(&susensors_process, susensors_txhandler, NULL);
 }
 
 void pair_removed(joinpair_t* pair){
+
 	if(pair->triggers[0] != -1){
-		coap_remove_observer_by_uri(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlAbove);
+		if(pairGroupRemove(pair, aboveEvent) == 0){
+			coap_remove_observer_by_uri(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlAbove);
+		}
 	}
 	if(pair->triggers[1] != -1){
-		coap_remove_observer_by_uri(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlBelow);
+		if(pairGroupRemove(pair, belowEvent) == 0){
+			coap_remove_observer_by_uri(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlBelow);
+		}
 	}
 	if(pair->triggers[2] != -1){
-		coap_remove_observer_by_uri(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlChange);
+		if(pairGroupRemove(pair, changeEvent) == 0){
+			coap_remove_observer_by_uri(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlChange);
+		}
 	}
 }
 
@@ -220,27 +230,24 @@ int missingJustCalled(uip_ip6addr_t* srcip){
 static void notification_callback(coap_observee_t *obs, void *notification,
 		coap_notification_flag_t flag){
 
-	int len = 0;
-	const uint8_t *payload = NULL;
-	joinpair_t* pair = (joinpair_t*) obs->data;
+	pairgroup_t* g = (pairgroup_t*) obs->data;
 
-	printf("Notification handler\n");
-	printf("Observee URI: %s\n", obs->url);
-	if(notification) {
-		len = coap_get_payload(notification, &payload);
-	}
-	switch(flag) {
-	case NOTIFICATION_OK:
-		printf("NOTIFICATION OK: %*s\n", len, (char *)payload);
-		break;
-	case OBSERVE_OK: /* server accepeted observation request */
-		process_post(&susensors_process, susensors_pair, pair);
-		break;
-	case OBSERVE_NOT_SUPPORTED:
-	case ERROR_RESPONSE_CODE:
-	case NO_REPLY_FROM_SERVER:
-		process_post(&susensors_process, susensors_pair_fail, pair);
-		break;
+	for(pairgroupItem_t* item = list_head(g->pairgroup); item; item = list_item_next(item)){
+		joinpair_t* pair = item->pair;
+		switch(flag) {
+		case NOTIFICATION_OK:
+			break;
+		case OBSERVE_OK: /* server accepeted observation request */
+			process_post(&susensors_process, susensors_pair, pair);
+			break;
+		case OBSERVE_NOT_SUPPORTED:
+		case ERROR_RESPONSE_CODE:
+			//TODO: Handle response!
+		case NO_REPLY_FROM_SERVER:
+			process_post(&susensors_process, susensors_pair_fail, pair);
+			g->paired = 0;
+			break;
+		}
 	}
 }
 
@@ -249,7 +256,7 @@ static void above_notificationcb(coap_observee_t *obs, void *notification,
 
 	int len = 0;
 	const uint8_t *payload = NULL;
-	joinpair_t* pair = (joinpair_t*) obs->data;
+	pairgroup_t* g = (pairgroup_t*) obs->data;
 
 	if(flag == NOTIFICATION_OK){
 
@@ -257,12 +264,14 @@ static void above_notificationcb(coap_observee_t *obs, void *notification,
 			len = coap_get_payload(notification, &payload);
 		}
 
+		for(pairgroupItem_t* i = list_head(g->pairgroup_list); g; g = list_item_next(g->pairgroup_list)){
+			joinpair_t* pair = i->pair;
 
-		susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
-		if(pair->aboveEventhandler != 0){
-			pair->aboveEventhandler(this, len, payload);
+			susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
+			if(pair->aboveEventhandler != 0){
+				pair->aboveEventhandler(this, len, payload);
+			}
 		}
-
 	}
 	else{
 		notification_callback(obs, notification, flag);
@@ -273,7 +282,7 @@ static void below_notificationcb(coap_observee_t *obs, void *notification,
 		coap_notification_flag_t flag){
 	int len = 0;
 	const uint8_t *payload = NULL;
-	joinpair_t* pair = (joinpair_t*) obs->data;
+	pairgroup_t* g = (pairgroup_t*) obs->data;
 
 	if(flag == NOTIFICATION_OK){
 
@@ -281,11 +290,14 @@ static void below_notificationcb(coap_observee_t *obs, void *notification,
 			len = coap_get_payload(notification, &payload);
 		}
 
-		susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
-		if(pair->belowEventhandler != 0){
-			pair->belowEventhandler(this, len, payload);
-		}
+		for(pairgroupItem_t* i = list_head(g->pairgroup_list); g; g = list_item_next(g->pairgroup_list)){
+			joinpair_t* pair = i->pair;
 
+			susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
+			if(pair->belowEventhandler != 0){
+				pair->belowEventhandler(this, len, payload);
+			}
+		}
 	}
 	else{
 		notification_callback(obs, notification, flag);
@@ -296,7 +308,7 @@ static void change_notificationcb(coap_observee_t *obs, void *notification,
 		coap_notification_flag_t flag){
 	int len = 0;
 	const uint8_t *payload = NULL;
-	joinpair_t* pair = (joinpair_t*) obs->data;
+	pairgroup_t* g = (pairgroup_t*) obs->data;
 
 	if(flag == NOTIFICATION_OK){
 
@@ -304,11 +316,14 @@ static void change_notificationcb(coap_observee_t *obs, void *notification,
 			len = coap_get_payload(notification, &payload);
 		}
 
-		susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
-		if(pair->changeEventhandler != 0){
-			pair->changeEventhandler(this, len, payload);
-		}
+		for(pairgroupItem_t* i = list_head(g->pairgroup_list); g; g = list_item_next(g->pairgroup_list)){
+			joinpair_t* pair = i->pair;
 
+			susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
+			if(pair->changeEventhandler != 0){
+				pair->changeEventhandler(this, len, payload);
+			}
+		}
 	}
 	else{
 		notification_callback(obs, notification, flag);
@@ -365,43 +380,68 @@ static int setupPairsConnections(joinpair_t* pair){
 
 	if(pair->triggers[0] != -1 && pair->triggerindex < aboveEvent){	//Above
 		pair->triggerindex = aboveEvent;
-		pair->aboveEventhandler = this->setEventhandlers(this, pair->triggers[aboveEvent]);
+		if(this->setEventhandlers != 0)
+			pair->aboveEventhandler = this->setEventhandlers(this, pair->triggers[aboveEvent]);
 		if(pair->aboveEventhandler != NULL){
 			if(pair->localhost){
 				localPairConnect(pair);
 				process_post(&susensors_process, susensors_pair, pair);
 			}
 			else{
-				coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlAbove,
-						above_notificationcb, pair);
+				pairgroup_t* g = pairGroupAdd(pair, aboveEvent);
+				if(g->paired == 0){
+					g->paired = 1;
+					coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlAbove,
+							above_notificationcb, g);
+				}
+				else{
+					process_post(&susensors_process, susensors_pair, pair);
+				}
+
 			}
 		}
 	}
 	else if(pair->triggers[1] != -1 && pair->triggerindex < belowEvent){	//Below
 		pair->triggerindex = belowEvent;
-		pair->belowEventhandler = this->setEventhandlers(this, pair->triggers[belowEvent]);
+		if(this->setEventhandlers != 0)
+			pair->belowEventhandler = this->setEventhandlers(this, pair->triggers[belowEvent]);
 		if(pair->belowEventhandler != NULL){
 			if(pair->localhost){
 				localPairConnect(pair);
 				process_post(&susensors_process, susensors_pair, pair);
 			}
 			else{
-				coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlBelow,
-						below_notificationcb, pair);
+				pairgroup_t* g = pairGroupAdd(pair, belowEvent);
+				if(g->paired == 0){
+					g->paired = 1;
+					coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlBelow,
+						below_notificationcb, g);
+				}
+				else{
+					process_post(&susensors_process, susensors_pair, pair);
+				}
 			}
 		}
 	}
 	else if(pair->triggers[2] != -1 && pair->triggerindex < changeEvent){	//Change
 		pair->triggerindex = changeEvent;
-		pair->changeEventhandler = this->setEventhandlers(this, pair->triggers[changeEvent]);
+		if(this->setEventhandlers != 0)
+			pair->changeEventhandler = this->setEventhandlers(this, pair->triggers[changeEvent]);
 		if(pair->changeEventhandler != NULL){
 			if(pair->localhost){
 				localPairConnect(pair);
 				process_post(&susensors_process, susensors_pair, pair);
 			}
 			else{
-				coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlChange,
-						change_notificationcb, pair);
+				pairgroup_t* g = pairGroupAdd(pair, changeEvent);
+				if(g->paired == 0){
+					g->paired = 1;
+					coap_obs_request_registration(&pair->destip, UIP_HTONS(COAP_DEFAULT_PORT), pair->dsturlChange,
+						change_notificationcb, g);
+				}
+				else{
+					process_post(&susensors_process, susensors_pair, pair);
+				}
 			}
 		}
 	}
@@ -503,6 +543,7 @@ PROCESS_THREAD(susensors_process, ev, data)
 	pair_register_add_callback(pair_added);
 	pair_register_rem_callback(pair_removed);
 
+	pairGroupInit();
 	list_t rlist = revNotifyInit();
 	if(list_length(rlist) > 0){
 		for(revlookup_t* a = list_head(rlist); a; a = list_item_next(a)){
@@ -610,13 +651,19 @@ PROCESS_THREAD(susensors_process, ev, data)
 						len = cp_encodeObject(payload, &obj);
 
 						if(d->event_flag & SUSENSORS_CHANGE_EVENT){
-							p->changeEventhandler(dd, len, payload);
+							if(p->triggers[changeEvent] != -1){
+								p->changeEventhandler(dd, len, payload);
+							}
 						}
 						if(d->event_flag & SUSENSORS_BELOW_EVENT){
-							p->belowEventhandler(dd, len, payload);
+							if(p->triggers[belowEvent] != -1){
+								p->belowEventhandler(dd, len, payload);
+							}
 						}
 						if(d->event_flag & SUSENSORS_ABOVE_EVENT){
-							p->aboveEventhandler(dd, len, payload);
+							if(p->triggers[aboveEvent] != -1){
+								p->aboveEventhandler(dd, len, payload);
+							}
 						}
 					}
 				}

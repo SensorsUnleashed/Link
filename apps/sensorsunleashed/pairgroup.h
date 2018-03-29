@@ -21,18 +21,23 @@
  *	a pairgroup all use the sanme pair from the same node
  */
 
-struct pairgroups_s{
-	struct pairgroups_s *next;
+struct pairgroup_s{
+	struct pairgroup_s *next;
+	uint8_t triggerindex;
+	uint8_t paired;
 	LIST_STRUCT(pairgroup);
 };
 
-struct pairgroup_s{
-	struct pairgroup_s *next;
+struct pairgroupItem_s{
+	struct pairgroupItem_s *next;
 	joinpair_t* pair;
 };
-typedef struct pairgroups_s pairgroups_t;
 typedef struct pairgroup_s pairgroup_t;
+typedef struct pairgroupItem_s pairgroupItem_t;
 
-void pairGroup_add(joinpair_t* pair);
+
+void pairGroupInit();
+pairgroup_t* pairGroupAdd(joinpair_t* pair, enum su_basic_events event);
+int pairGroupRemove(joinpair_t* pair, enum su_basic_events event);
 
 #endif /* APPS_SENSORSUNLEASHED_PAIRGROUP_H_ */
