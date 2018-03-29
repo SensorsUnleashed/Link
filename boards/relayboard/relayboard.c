@@ -11,6 +11,7 @@
 #include "button-sensor.h"
 #include "relay.h"
 #include "ledindicator.h"
+#include "timerdevice.h"
 #include "resources/res-susensors.h"
 #include "cfs-coffee-arch.h"
 #include "rpl.h"
@@ -53,6 +54,10 @@ PROCESS_THREAD(device_process, ev, data)
 		setResource(d, res_susensor_activate(d));
 	}
 	d = addASULedIndicator("su/led_yellow", &ledindicatorconfig, &led_yellow);
+	if(d != NULL){
+		setResource(d, res_susensor_activate(d));
+	}
+	d = addASUTimerDevice(TIMER_DEVICE, &timerconfig);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}
