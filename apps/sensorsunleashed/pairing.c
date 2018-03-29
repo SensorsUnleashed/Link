@@ -202,8 +202,6 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 	cmp_init(&cmpindex, indexbuffer, buf_reader, 0);
 
 	if(!cmp_read_array(&cmpindex, &indexlen)) {
-		cfs_close(orig.fd);
-		cfs_close(temp.fd);
 		return 4;
 	}
 
@@ -211,8 +209,6 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 
 	for(int i=0; i<indexlen; i++){
 		if(!cmp_read_u8(&cmpindex, &arr[i])){
-			cfs_close(orig.fd);
-			cfs_close(temp.fd);
 			return 4;
 		}
 	}
@@ -235,7 +231,9 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 
 	orig.fd = cfs_open(filename, CFS_READ);
 	orig.offset = 0;
-	if(orig.fd < 0) return 1;
+	if(orig.fd < 0){
+		return 1;
+	}
 
 	temp.fd = cfs_open("temp", CFS_READ | CFS_WRITE);
 	temp.offset = 0;
@@ -258,6 +256,8 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 		//Its always the last 2 bytes that contains the id
 		cmp_init(&cmpindex, buffer+bufsize-2, buf_reader, 0);
 		if(!cmp_read_u8(&cmpindex, &id)){
+			cfs_close(temp.fd);
+			cfs_close(orig.fd);
 			return 5;
 		}
 
@@ -276,13 +276,17 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 	cfs_close(orig.fd);
 
 	if(orig.offset == 0){	//File was empty, just leave
+		cfs_close(temp.fd);
 		return 3;
 	}
 
 	cfs_remove(filename);
 	orig.fd = cfs_open(filename, CFS_WRITE);	//Truncate the file to the new content
 	orig.offset = 0;
-	if(orig.fd < 0) return 1;
+	if(orig.fd < 0) {
+		cfs_close(temp.fd);
+		return 1;
+	}
 
 	//Start writing from the end
 	//cfs_seek(temp.fd, 0, CFS_SEEK_SET);

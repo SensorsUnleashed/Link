@@ -54,6 +54,7 @@ list_t revNotifyInit(){
 		}
 		list_add(revlookup, addr);
 	}
+	cfs_close(read.fd);
 	return revlookup;
 }
 
