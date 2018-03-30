@@ -21,8 +21,9 @@ static pairgroup_t* pairGroupNew(enum su_basic_events triggerindex){
 		g->paired = 0;
 		g->triggerindex = triggerindex;
 		LIST_STRUCT_INIT(g, pairgroup);
+		list_add(groupslist, g);
 	}
-	list_add(groupslist, g);
+
 	return g;
 }
 

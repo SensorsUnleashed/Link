@@ -264,7 +264,7 @@ static void above_notificationcb(coap_observee_t *obs, void *notification,
 			len = coap_get_payload(notification, &payload);
 		}
 
-		for(pairgroupItem_t* i = list_head(g->pairgroup_list); g; g = list_item_next(g->pairgroup_list)){
+		for(pairgroupItem_t* i = list_head(g->pairgroup); i; i = list_item_next(i)){
 			joinpair_t* pair = i->pair;
 
 			susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
@@ -290,7 +290,7 @@ static void below_notificationcb(coap_observee_t *obs, void *notification,
 			len = coap_get_payload(notification, &payload);
 		}
 
-		for(pairgroupItem_t* i = list_head(g->pairgroup_list); g; g = list_item_next(g->pairgroup_list)){
+		for(pairgroupItem_t* i = list_head(g->pairgroup); i; i = list_item_next(i)){
 			joinpair_t* pair = i->pair;
 
 			susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;
@@ -316,7 +316,7 @@ static void change_notificationcb(coap_observee_t *obs, void *notification,
 			len = coap_get_payload(notification, &payload);
 		}
 
-		for(pairgroupItem_t* i = list_head(g->pairgroup_list); g; g = list_item_next(g->pairgroup_list)){
+		for(pairgroupItem_t* i = list_head(g->pairgroup); i; i = list_item_next(i)){
 			joinpair_t* pair = i->pair;
 
 			susensors_sensor_t* this = (susensors_sensor_t*) pair->deviceptr;

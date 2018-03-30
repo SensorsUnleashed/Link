@@ -16,14 +16,14 @@ struct resourceconf timerconfig = {
 		.version = 1,
 		.flags = METHOD_GET | METHOD_PUT | IS_OBSERVABLE | HAS_SUB_RESOURCES,
 		.max_pollinterval = 2,
-		.eventsActive = AboveEventActive | BelowEventActive | ChangeEventActive,
+		.eventsActive = AboveEventActive | BelowEventActive,
 		.AboveEventAt = {
 				.type = CMP_TYPE_UINT32,
 				.as.u32 = 60
 		},
 		.BelowEventAt = {
 				.type = CMP_TYPE_UINT32,
-				.as.u32 = 30
+				.as.u32 = 2
 		},
 		.ChangeEvent = {
 				.type = CMP_TYPE_UINT32,
@@ -31,7 +31,7 @@ struct resourceconf timerconfig = {
 		},
 		.RangeMin = {
 				.type = CMP_TYPE_UINT32,
-				.as.u32 = 0
+				.as.u32 = 1
 		},
 		.RangeMax = {
 				.type = CMP_TYPE_UINT32,
@@ -102,6 +102,7 @@ static int set (susensors_sensor_t* this, int type, void* data){
 	else if((enum su_timer_actions)type == timerRestart){
 		ctimer_stop(&tr->timer);
 		resetCounters(tr);
+		setEventU32(this, -1, 0);
 		setNextTimeout(this);
 		ret = 0;
 	}
@@ -110,6 +111,15 @@ static int set (susensors_sensor_t* this, int type, void* data){
 }
 
 
+/* The time only counts up.
+ * A below event is only fired if the timer crosses
+ * its value going high to low values. This is only
+ * possible with a reset.
+ * It a reset is performed below the below event treashold
+ * the below event is not fired. This could perhaps be
+ * usefull in special cases.
+ * Anyway, this is why the belowEventAt is not considered here.
+ * */
 static int setNextTimeout(susensors_sensor_t* this){
 
 	struct resourceconf* r = this->data.config;
@@ -117,13 +127,9 @@ static int setNextTimeout(susensors_sensor_t* this){
 
 	clock_time_t interval = 0;
 	tr->step = 0;
-	if(tr->LastValue.as.u32 < r->ChangeEvent.as.u32 && (r->eventsActive & ChangeEventActive)){
-		tr->step = 	(clock_time_t)(r->ChangeEvent.as.u32 - tr->LastValue.as.u32);
-	}
-
-	if(tr->LastValue.as.u32 < r->BelowEventAt.as.u32 && (r->eventsActive & BelowEventActive)){
-		interval = (clock_time_t)(r->BelowEventAt.as.u32 - tr->LastValue.as.u32);
-		tr->step = interval < tr->step ? interval : tr->step;
+	if(tr->ChangeEventAcc.as.u32 <= r->ChangeEvent.as.u32 && (r->eventsActive & ChangeEventActive)){
+		interval = (clock_time_t)(r->ChangeEvent.as.u32 - tr->ChangeEventAcc.as.u32);
+		tr->step = interval == 0 ? r->ChangeEvent.as.u32 : interval;
 	}
 
 	if(tr->LastValue.as.u32 < r->AboveEventAt.as.u32 && (r->eventsActive & AboveEventActive)){
@@ -142,6 +148,7 @@ static void timer_cb(void* ptr){
 	susensors_sensor_t* this = ptr;
 	struct timerRuntime* tr = this->data.runtime;
 
+	tr->LastValue.as.u32 += tr->step;
 	setEventU32(this, 1, tr->step);
 
 	/* Set events */

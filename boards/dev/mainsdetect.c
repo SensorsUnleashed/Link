@@ -268,7 +268,7 @@ susensors_sensor_t* addASUMainsDetector(const char* name, struct resourceconf* c
 	d.suconfig = suconfig;
 	d.data.config = config;
 
-	d.setEventhandlers = NULL;
+	d.setEventhandlers = NULL;	//TODO: Implement this
 
 	mainsdetectruntime[0].enabled = 0;
 	mainsdetectruntime[0].hasEvent = 0,
