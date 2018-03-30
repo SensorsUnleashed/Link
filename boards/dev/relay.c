@@ -55,7 +55,7 @@ struct resourceconf relayconfigs = {
 		.version = 1,
 		.flags = METHOD_GET | METHOD_PUT | IS_OBSERVABLE | HAS_SUB_RESOURCES,
 		.max_pollinterval = 2,
-		.eventsActive = ChangeEventActive,
+		.eventsActive = AboveEventActive | BelowEventActive | ChangeEventActive,
 		.AboveEventAt = {
 				.type = CMP_TYPE_UINT8,
 				.as.u8 = 1
@@ -100,7 +100,6 @@ static int relay_on(struct susensors_sensor* this)
 	if(r->LastValue.as.u8 == 0){
 		r->LastValue.as.u8 = 1;
 		GPIO_SET_PIN(RELAY_PORT_BASE, RELAY_PIN_MASK);
-		leds_on(LEDS_ORANGE);
 		return 0;
 	}
 
@@ -120,7 +119,6 @@ static int relay_off(struct susensors_sensor* this)
 	if(r->LastValue.as.u8 == 1){
 		r->LastValue.as.u8 = 0;
 		GPIO_CLR_PIN(RELAY_PORT_BASE, RELAY_PIN_MASK);
-		leds_off(LEDS_ORANGE);
 		return 0;
 	}
 
