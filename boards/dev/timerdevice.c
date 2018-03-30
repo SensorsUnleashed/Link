@@ -8,6 +8,10 @@
 #include "susensorcommon.h"
 #include "ctimer.h"
 
+/*
+ * The timer device can be used to trigger another device - delayed
+ *
+ * */
 static void timer_cb(void* ptr);
 static int setNextTimeout(susensors_sensor_t* this);
 
@@ -58,10 +62,6 @@ struct timerRuntime {
 };
 static struct timerRuntime runtimeData;
 
-static void resetCounters(struct timerRuntime* data){
-	data->LastValue.as.u32 = 0;
-	data->ChangeEventAcc.as.u32 = 0;
-}
 //Actual value is the expiration time
 static int get (susensors_sensor_t* this, int type, void* data){
 	struct timerRuntime* tr = this->data.runtime;
@@ -84,6 +84,7 @@ static int get (susensors_sensor_t* this, int type, void* data){
 static int set (susensors_sensor_t* this, int type, void* data){
 
 	struct timerRuntime* tr = this->data.runtime;
+	struct resourceconf* r = this->data.config;
 	int enabled = tr->enabled;
 	int ret = 1;
 
@@ -101,8 +102,10 @@ static int set (susensors_sensor_t* this, int type, void* data){
 	}
 	else if((enum su_timer_actions)type == timerRestart){
 		ctimer_stop(&tr->timer);
-		resetCounters(tr);
-		setEventU32(this, -1, 0);
+		tr->LastEventValue.as.u32 = r->BelowEventAt.as.u32 + 1;
+		int step = tr->LastValue.as.u32;
+		tr->LastValue.as.u32 = 0;
+		setEventU32(this, -1, step);
 		setNextTimeout(this);
 		ret = 0;
 	}
@@ -110,16 +113,6 @@ static int set (susensors_sensor_t* this, int type, void* data){
 	return ret;
 }
 
-
-/* The time only counts up.
- * A below event is only fired if the timer crosses
- * its value going high to low values. This is only
- * possible with a reset.
- * It a reset is performed below the below event treashold
- * the below event is not fired. This could perhaps be
- * usefull in special cases.
- * Anyway, this is why the belowEventAt is not considered here.
- * */
 static int setNextTimeout(susensors_sensor_t* this){
 
 	struct resourceconf* r = this->data.config;
@@ -132,9 +125,14 @@ static int setNextTimeout(susensors_sensor_t* this){
 		tr->step = interval == 0 ? r->ChangeEvent.as.u32 : interval;
 	}
 
+	if(tr->LastValue.as.u32 < r->BelowEventAt.as.u32 && (r->eventsActive & BelowEventActive)){
+		interval = (clock_time_t)(r->BelowEventAt.as.u32 + 1 - tr->LastValue.as.u32);
+		tr->step = (tr->step == 0 || interval < tr->step) ? interval : tr->step;
+	}
+
 	if(tr->LastValue.as.u32 < r->AboveEventAt.as.u32 && (r->eventsActive & AboveEventActive)){
 		interval = (clock_time_t)(r->AboveEventAt.as.u32 - tr->LastValue.as.u32);
-		tr->step = interval < tr->step ? interval : tr->step;
+		tr->step = (tr->step == 0 || interval < tr->step) ? interval : tr->step;
 	}
 
 	if(tr->step){
