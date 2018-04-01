@@ -1,6 +1,10 @@
 #ifndef SUSYSTEM_CONF_H_
 #define SUSYSTEM_CONF_H_
 
+//The default amount of bytes allocated when a new file is created
+//Every device creates 1 file for its pairs
+#define COFFEE_CONF_DYN_SIZE	400
+
 #define WATCHDOG_CONF_ENABLE	0
 
 //#define UART_CONF_ENABLE	0

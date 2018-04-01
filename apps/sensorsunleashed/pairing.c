@@ -168,7 +168,6 @@ uint8_t pairing_remove_all(susensors_sensor_t* s){
 		free(p->dsturlBelow);
 		free(p->dsturlChange);
 		mmem_free(&p->dsturl);
-		mmem_free(&p->srcurl);
 	}
 
 	return cfs_remove(filename);
@@ -313,7 +312,6 @@ uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer
 				free(p->dsturlBelow);
 				free(p->dsturlChange);
 				mmem_free(&p->dsturl);
-				mmem_free(&p->srcurl);
 				list_remove(s->pairs, p);
 				break;
 			}
@@ -387,7 +385,7 @@ int8_t parseMessage(joinpair_t* pair){
 		return -3;
 	}
 
-	//Generate all the connection handles (FIXME: Even though they might not be used)
+	//Generate all the connection handles
 	if(pair->dsturlAbove == 0){
 		pair->dsturlAbove = malloc(stringlen + strlen(strAbove)+1);
 		memcpy(pair->dsturlAbove, &stringbuf, strlen(stringbuf));
@@ -404,29 +402,11 @@ int8_t parseMessage(joinpair_t* pair){
 		memcpy(pair->dsturlChange + strlen(stringbuf), strChange, strlen(strChange)+1);
 	}
 
-	stringlen = 100;
-	if(cp_decode_string((uint8_t*) payload + bufindex, &stringbuf[0], &stringlen, &bufindex) != 0){
-		free(pair->dsturlAbove);
-		free(pair->dsturlBelow);
-		free(pair->dsturlChange);
-		mmem_free(&pair->dsturl);
-		return -4;
-	}
-	stringlen++;	//We need the /0 also
-	if(mmem_alloc(&pair->srcurl, stringlen) == 0){
-		free(pair->dsturlAbove);
-		free(pair->dsturlBelow);
-		free(pair->dsturlChange);
-		return -3;
-	}
-	memcpy((char*)MMEM_PTR(&pair->srcurl), (char*)stringbuf, stringlen);
-
 	if(cp_decodeU8((uint8_t*) payload + bufindex, &pair->id, &bufindex) != 0){
 		free(pair->dsturlAbove);
 		free(pair->dsturlBelow);
 		free(pair->dsturlChange);
 		mmem_free(&pair->dsturl);
-		mmem_free(&pair->srcurl);
 		return 0;
 	}
 
@@ -444,13 +424,11 @@ int8_t parseMessage(joinpair_t* pair){
 // -3 = Unable to allocate enough dynamic memory
 // -4 = src_uri could not be parsed
 // -5 = device already paired
+// -6 = filesystem error
 int8_t pairing_handle(susensors_sensor_t* s){
 
 	uint8_t* payload = &buffer[0];
 	list_t pairings_list = s->pairs;
-
-	if(strlen(s->type) + bufsize > BUFFERSIZE) return -3;
-	cp_encodeString((uint8_t*) payload + bufsize, s->type, strlen(s->type), &bufsize);
 
 	if(2 + bufsize > BUFFERSIZE) return -3;
 	int id = lastid == 255 ? 1 : lastid + 1;
@@ -482,7 +460,6 @@ int8_t pairing_handle(susensors_sensor_t* s){
 			free(p->dsturlBelow);
 			free(p->dsturlChange);
 			mmem_free(&p->dsturl);
-			mmem_free(&p->srcurl);
 			memb_free(&pairings, p);
 			return -5;
 		}
@@ -492,7 +469,9 @@ int8_t pairing_handle(susensors_sensor_t* s){
 	list_add(pairings_list, p);
 
 	//Finally store pairing info into flash
-	store_SensorPair(s, payload, bufsize);
+	if(store_SensorPair(s, payload, bufsize) != 0){
+		return -6;
+	}
 
 	PRINTF("Pair dst: %s, triggers: 0x%X\n", (char*)MMEM_PTR(&p->dsturl), (unsigned int)p->triggers);
 
@@ -503,7 +482,7 @@ int8_t pairing_handle(susensors_sensor_t* s){
 	return id;
 }
 
-void store_SensorPair(susensors_sensor_t* s, uint8_t* data, uint32_t len){
+int store_SensorPair(susensors_sensor_t* s, uint8_t* data, uint32_t len){
 	char filename[30];
 	memset(filename, 0, 30);
 	sprintf(filename, "pairs_%s", s->type);
@@ -512,7 +491,7 @@ void store_SensorPair(susensors_sensor_t* s, uint8_t* data, uint32_t len){
 	write.offset = 0;
 
 	if(write.fd < 0) {
-		return;
+		return -1;
 	}
 
 	cmp_ctx_t cmp;
@@ -520,6 +499,8 @@ void store_SensorPair(susensors_sensor_t* s, uint8_t* data, uint32_t len){
 
 	cmp_write_bin(&cmp, data, len);
 	cfs_close(write.fd);
+
+	return 0;
 }
 
 void restore_SensorPairs(susensors_sensor_t* s){
@@ -542,7 +523,7 @@ void restore_SensorPairs(susensors_sensor_t* s){
 	while(cmp_read_bin(&cmp, buffer, &bufsize)){
 		joinpair_t* pair = (joinpair_t*)memb_alloc(&pairings);
 		if(parseMessage(pair) > 0){
-			PRINTF("SrcUri: %s -> DstUri: %s\n", (char*)MMEM_PTR(&pair->srcurl), (char*)MMEM_PTR(&pair->dsturl));
+			PRINTF("SrcUri: %s -> DstUri: %s\n", s->type, (char*)MMEM_PTR(&pair->dsturl));
 			pair->deviceptr = s;
 			list_add(pairings_list, pair);
 			lastid = lastid < pair->id ? pair->id : lastid;

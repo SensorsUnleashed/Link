@@ -291,6 +291,9 @@ res_susensor_puthandler(void *request, void *response, uint8_t *buffer, uint16_t
 								case -5:
 									REST.set_response_status(response, REST.status.NOT_MODIFIED);
 									break;
+								case -6:
+									REST.set_response_status(response, REST.status.INTERNAL_SERVER_ERROR);
+									break;
 								}
 							}
 						}

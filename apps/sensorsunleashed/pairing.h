@@ -62,7 +62,6 @@ struct __attribute__ ((__packed__)) joinpair_s{
 	char* dsturlChange;
 
 	struct mmem dsturl;
-	struct mmem srcurl;	//Used only to determine at boot, which resource we are a pair of.
 
 	int8_t triggers[3];	//Which action is set to be triggered
 	int8_t triggerindex; //Used when we setup the pairs connection initially
@@ -95,7 +94,7 @@ int16_t pairing_getlist(susensors_sensor_t* s, uint8_t* buffer, uint16_t len, in
 uint8_t pairing_remove_all(susensors_sensor_t* s);
 uint8_t pairing_remove(susensors_sensor_t* s, uint32_t len, uint8_t* indexbuffer);
 int8_t pairing_handle(susensors_sensor_t* s);
-void store_SensorPair(susensors_sensor_t* s, uint8_t* data, uint32_t len);
+int store_SensorPair(susensors_sensor_t* s, uint8_t* data, uint32_t len);
 void restore_SensorPairs(susensors_sensor_t* s);
 
 
