@@ -220,6 +220,9 @@ int missingJustCalled(uip_ip6addr_t* srcip){
 			if(found){
 				interested = 1;
 				i->triggerindex = aboveEvent;
+				pairGroupRemove(i, aboveEvent);
+				pairGroupRemove(i, belowEvent);
+				pairGroupRemove(i, changeEvent);
 				process_post(&susensors_process, susensors_pair, i);
 			}
 		}
