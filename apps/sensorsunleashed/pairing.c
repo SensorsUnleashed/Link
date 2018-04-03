@@ -60,13 +60,6 @@
 #define PRINTLLADDR(addr)
 #endif
 
-struct file_s{
-	int offset;
-	int fd;
-};
-
-static bool file_reader(cmp_ctx_t *ctx, void *data, uint32_t limit);
-static uint32_t file_writer(cmp_ctx_t* ctx, const void *data, uint32_t count);
 static uint8_t lastid = 0;
 
 #define BUFFERSIZE	300
@@ -535,26 +528,4 @@ void restore_SensorPairs(susensors_sensor_t* s){
 	}
 	bufsize = 0;
 	cfs_close(read.fd);
-}
-
-static bool file_reader(cmp_ctx_t *ctx, void *data, uint32_t len) {
-
-	struct file_s* file = (struct file_s*)ctx->buf;
-	if(file->fd >= 0) {
-		cfs_seek(file->fd, file->offset, CFS_SEEK_SET);
-		file->offset += cfs_read(file->fd, data, len);
-	}
-
-	return true;
-}
-
-static uint32_t file_writer(cmp_ctx_t* ctx, const void *data, uint32_t len){
-
-	struct file_s* file = (struct file_s*)ctx->buf;
-
-	if(file->fd >= 0) {
-		len = cfs_write(file->fd, data, len);
-	}
-
-	return len;
 }

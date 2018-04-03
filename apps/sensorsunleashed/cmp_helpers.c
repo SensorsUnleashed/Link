@@ -39,7 +39,7 @@
 #include "crc16.h"
 #include <string.h>
 #include <stdio.h>
-
+#include "cfs/cfs.h"
 /*
  *
  * Return:
@@ -112,78 +112,78 @@ static uint32_t buf_writer(cmp_ctx_t* ctx, const void *data, uint32_t count){
  * MsgPack Encode the resourceconfiguration message
  * return: Buffer length
  * */
-uint32_t cp_encoderesource_conf(struct resourceconf* data, uint8_t* buffer){
-	cmp_ctx_t cmp;
-	cmp_init(&cmp, buffer, buf_reader, buf_writer);
-
-	cmp_write_u8(&cmp, data->id);
-	cmp_write_u32(&cmp, data->resolution);
-	cmp_write_u32(&cmp, data->version);
-	cmp_write_u8(&cmp, data->flags);
-	cmp_write_s32(&cmp, data->max_pollinterval);
-	cmp_write_u8(&cmp, data->eventsActive);
-	cmp_write_object(&cmp, &data->AboveEventAt);
-	cmp_write_object(&cmp, &data->BelowEventAt);
-	cmp_write_object(&cmp, &data->ChangeEvent);
-	cmp_write_str(&cmp, data->unit, strlen(data->unit)+1);
-	cmp_write_str(&cmp, data->spec, strlen(data->spec)+1);
-	cmp_write_str(&cmp, data->type, strlen(data->type)+1);
-	cmp_write_str(&cmp, data->group, strlen(data->group)+1);
-	cmp_write_str(&cmp, data->attr, strlen(data->attr)+1);
-
-	return (uint32_t)(((void*)cmp.buf) - ((void*)buffer));
-}
+//uint32_t cp_encoderesource_conf(struct resourceconf* data, uint8_t* buffer){
+//	cmp_ctx_t cmp;
+//	cmp_init(&cmp, buffer, buf_reader, buf_writer);
+//
+//	cmp_write_u8(&cmp, data->id);
+//	cmp_write_u32(&cmp, data->resolution);
+//	cmp_write_u32(&cmp, data->version);
+//	cmp_write_u8(&cmp, data->flags);
+//	cmp_write_s32(&cmp, data->max_pollinterval);
+//	cmp_write_u8(&cmp, data->eventsActive);
+//	cmp_write_object(&cmp, &data->AboveEventAt);
+//	cmp_write_object(&cmp, &data->BelowEventAt);
+//	cmp_write_object(&cmp, &data->ChangeEvent);
+//	cmp_write_str(&cmp, data->unit, strlen(data->unit)+1);
+//	cmp_write_str(&cmp, data->spec, strlen(data->spec)+1);
+//	cmp_write_str(&cmp, data->type, strlen(data->type)+1);
+//	cmp_write_str(&cmp, data->group, strlen(data->group)+1);
+//	cmp_write_str(&cmp, data->attr, strlen(data->attr)+1);
+//
+//	return (uint32_t)(((void*)cmp.buf) - ((void*)buffer));
+//}
 
 /* Returns:
  *  0 for OK
  *  1 for err
  */
-int cp_decoderesource_conf(struct resourceconf* data, uint8_t* buffer, char* strings){
-	cmp_ctx_t cmp;
-	cmp_init(&cmp, buffer, buf_reader, buf_writer);
-
-	cmp_read_u8(&cmp, &data->id);
-	cmp_read_u32(&cmp, &data->resolution);
-	cmp_read_u32(&cmp, &data->version);
-	cmp_read_u8(&cmp, &data->flags);
-	cmp_read_s32(&cmp, &data->max_pollinterval);
-
-	cmp_read_u8(&cmp, &data->eventsActive);
-	cmp_read_object(&cmp, &data->AboveEventAt);
-	cmp_read_object(&cmp, &data->BelowEventAt);
-	cmp_read_object(&cmp, &data->ChangeEvent);
-
-	//Put the strings in a mem location and point to them from the data structure
-	data->unit = strings;
-	uint32_t len = 100;
-	cmp_read_str(&cmp, strings, &len);
-	strings += len;	//Keep the \0
-
-	data->spec = strings;
-	len = 100;	//How long can we allow it to be
-	cmp_read_str(&cmp, strings, &len);
-	strings += len;	//Keep the \0
-
-	data->type = strings;
-	len = 100;	//How long can we allow it to be
-	cmp_read_str(&cmp, strings, &len);
-
-	/* The coap resource URL is made up from type/group.
-	 * For now we only use these fields for the url, so lets combine those*/
-	strings += len-1;
-	*strings++ = '/';
-
-	data->group = strings;
-	cmp_read_str(&cmp, strings, &len);
-	strings += len;	//Keep the \0
-
-	data->attr = strings;
-	len = 100;	//How long can we allow it to be
-	cmp_read_str(&cmp, strings, &len);
-	strings += len;	//Keep the \0
-
-	return 1;
-}
+//int cp_decoderesource_conf(struct resourceconf* data, uint8_t* buffer, char* strings){
+//	cmp_ctx_t cmp;
+//	cmp_init(&cmp, buffer, buf_reader, buf_writer);
+//
+//	cmp_read_u8(&cmp, &data->id);
+//	cmp_read_u32(&cmp, &data->resolution);
+//	cmp_read_u32(&cmp, &data->version);
+//	cmp_read_u8(&cmp, &data->flags);
+//	cmp_read_s32(&cmp, &data->max_pollinterval);
+//
+//	cmp_read_u8(&cmp, &data->eventsActive);
+//	cmp_read_object(&cmp, &data->AboveEventAt);
+//	cmp_read_object(&cmp, &data->BelowEventAt);
+//	cmp_read_object(&cmp, &data->ChangeEvent);
+//
+//	//Put the strings in a mem location and point to them from the data structure
+//	data->unit = strings;
+//	uint32_t len = 100;
+//	cmp_read_str(&cmp, strings, &len);
+//	strings += len;	//Keep the \0
+//
+//	data->spec = strings;
+//	len = 100;	//How long can we allow it to be
+//	cmp_read_str(&cmp, strings, &len);
+//	strings += len;	//Keep the \0
+//
+//	data->type = strings;
+//	len = 100;	//How long can we allow it to be
+//	cmp_read_str(&cmp, strings, &len);
+//
+//	/* The coap resource URL is made up from type/group.
+//	 * For now we only use these fields for the url, so lets combine those*/
+//	strings += len-1;
+//	*strings++ = '/';
+//
+//	data->group = strings;
+//	cmp_read_str(&cmp, strings, &len);
+//	strings += len;	//Keep the \0
+//
+//	data->attr = strings;
+//	len = 100;	//How long can we allow it to be
+//	cmp_read_str(&cmp, strings, &len);
+//	strings += len;	//Keep the \0
+//
+//	return 1;
+//}
 
 //Returns the length of the written data
 uint32_t cp_encodeObject(uint8_t* buffer, cmp_object_t *obj){
@@ -436,5 +436,27 @@ int cp_convMsgPackToString(uint8_t* buffer, uint8_t* conv, uint32_t* len){
 	}
 
 	return cp_cmp_to_string(&obj, conv, len);
+}
+
+bool file_reader(cmp_ctx_t *ctx, void *data, uint32_t len) {
+
+	struct file_s* file = (struct file_s*)ctx->buf;
+	if(file->fd >= 0) {
+		cfs_seek(file->fd, file->offset, CFS_SEEK_SET);
+		file->offset += cfs_read(file->fd, data, len);
+	}
+
+	return true;
+}
+
+uint32_t file_writer(cmp_ctx_t* ctx, const void *data, uint32_t len){
+
+	struct file_s* file = (struct file_s*)ctx->buf;
+
+	if(file->fd >= 0) {
+		len = cfs_write(file->fd, data, len);
+	}
+
+	return len;
 }
 

@@ -13,20 +13,14 @@
 #include "cmp.h"
 #include "susensors.h"
 #include "reverseNotify.h"
+#include "cmp_helpers.h"
 
 LIST(revlookup);
 MEMB(revlookup_memb, revlookup_t, 20);
 
 static void writeFile();
-static bool file_reader(cmp_ctx_t *ctx, void *data, uint32_t len);
-static uint32_t file_writer(cmp_ctx_t* ctx, const void *data, uint32_t len);
 
 static const char* filename = "revnotify";
-
-struct file_s{
-	int offset;
-	int fd;
-};
 
 list_t revNotifyInit(){
 	list_init(revlookup);
@@ -137,24 +131,3 @@ static void writeFile(){
 	cfs_close(write.fd);
 }
 
-static bool file_reader(cmp_ctx_t *ctx, void *data, uint32_t len){
-
-	struct file_s* file = (struct file_s*)ctx->buf;
-	if(file->fd >= 0) {
-		cfs_seek(file->fd, file->offset, CFS_SEEK_SET);
-		file->offset += cfs_read(file->fd, data, len);
-	}
-
-	return true;
-}
-
-static uint32_t file_writer(cmp_ctx_t* ctx, const void *data, uint32_t len){
-
-	struct file_s* file = (struct file_s*)ctx->buf;
-
-	if(file->fd >= 0) {
-		len = cfs_write(file->fd, data, len);
-	}
-
-	return len;
-}
