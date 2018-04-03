@@ -34,9 +34,7 @@
 
 #include "susensors.h"
 
-extern struct resourceconf mainsdetectconfig;
-
-susensors_sensor_t* addASUMainsDetector(const char* name, struct resourceconf* config);
+susensors_sensor_t* addASUMainsDetector(const char* name, settings_t* settings);
 
 #ifdef MAINSDETECT_CONF_PIN
 #define MAINSDETECT_PIN        MAINSDETECT_CONF_PIN

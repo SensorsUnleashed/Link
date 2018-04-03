@@ -43,8 +43,7 @@
 
 #define PULSE_SENSOR "su/pulsecounter"
 
-extern struct resourceconf pulseconfig;
-susensors_sensor_t* addASUPulseInputRelay(const char* name, struct resourceconf* config);
+susensors_sensor_t* addASUPulseInputRelay(const char* name, settings_t* setting);
 
 
 /**

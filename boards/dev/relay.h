@@ -35,9 +35,7 @@
 
 #include "susensors.h"
 
-extern struct resourceconf relayconfigs;
-
-susensors_sensor_t* addASURelay(const char* name, struct resourceconf* config);
+susensors_sensor_t* addASURelay(const char* name, settings_t* settings);
 
 #ifdef RELAY_CONF_PIN
 #define RELAY_PIN        RELAY_CONF_PIN

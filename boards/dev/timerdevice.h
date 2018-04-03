@@ -11,9 +11,7 @@
 #include "susensors.h"
 #include "cmp_helpers.h"
 
-extern struct resourceconf timerconfig;
-
-susensors_sensor_t* addASUTimerDevice(const char* name, struct resourceconf* config);
+susensors_sensor_t* addASUTimerDevice(const char* name, settings_t* config);
 
 #define TIMER_DEVICE "su/timer"
 

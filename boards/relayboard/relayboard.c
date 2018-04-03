@@ -1,4 +1,5 @@
 /*
+#include <dev/deviceSetup.h>
  * relayboard.c
  *
  *  Created on: 30. jan. 2018
@@ -45,19 +46,19 @@ PROCESS_THREAD(device_process, ev, data)
 	initSUSensors();
 
 	susensors_sensor_t* d;
-	d = addASURelay(RELAY_ACTUATOR, &relayconfigs);
+	d = addASURelay(RELAY_ACTUATOR, &relaysetting);
 	if(d != NULL) {
 		setResource(d, res_susensor_activate(d));
 	}
-	d = addASUButtonSensor(BUTTON_SENSOR, &pushbuttonconfig);
+	d = addASUButtonSensor(BUTTON_SENSOR, &pushbutton_settings);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}
-	d = addASULedIndicator("su/led_yellow", &ledindicatorconfig, &led_yellow);
+	d = addASULedIndicator("su/led_yellow", &yellow_led_setting, &led_yellow);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}
-	d = addASUTimerDevice(TIMER_DEVICE, &timerconfig);
+	d = addASUTimerDevice(TIMER_DEVICE, &timer_settings);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}

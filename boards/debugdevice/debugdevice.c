@@ -1,4 +1,5 @@
 /*
+#include <dev/deviceSetup.h>
  * relayboard.c
  *
  *  Created on: 30. jan. 2018
@@ -17,6 +18,7 @@
 #include "resources/res-susensors.h"
 #include "cfs-coffee-arch.h"
 #include "rpl.h"
+#include "deviceSetup.h"
 
 #define DEBUG 1
 #if DEBUG
@@ -37,6 +39,7 @@ struct ledRuntime led_yellow = { LEDS_YELLOW };
 extern  resource_t  res_sysinfo;
 
 process_event_t systemchange;
+MEMB(settings_memb, settings_t, 20);
 
 PROCESS_THREAD(device_process, ev, data)
 {
@@ -45,41 +48,35 @@ PROCESS_THREAD(device_process, ev, data)
 	PROCESS_BEGIN();
 
 	initSUSensors();
+	settings_t* relaysetting = (settings_t*)memb_alloc(&settings_memb);
+	settings_t* yellow_led_setting = (settings_t*)memb_alloc(&settings_memb);
+	settings_t* pulseCounter_settings = (settings_t*)memb_alloc(&settings_memb);
+	settings_t* mainsDetector_settings = (settings_t*)memb_alloc(&settings_memb);
+	settings_t* pushbutton_settings = (settings_t*)memb_alloc(&settings_memb);
+	settings_t* timer_settings = (settings_t*)memb_alloc(&settings_memb);
 
 	susensors_sensor_t* d;
-	d = addASURelay(RELAY_ACTUATOR, &relayconfigs);
+	d = addASURelay(RELAY_ACTUATOR, relaysetting);
 	if(d != NULL) {
 		setResource(d, res_susensor_activate(d));
 	}
-//	d = addASULedIndicator("su/led_red", &ledindicatorconfig, &led_red);
-//	if(d != NULL){
-//		setResource(d, res_susensor_activate(d));
-//	}
-//	d = addASULedIndicator("su/led_green", &ledindicatorconfig, &led_green);
-//	if(d != NULL){
-//		setResource(d, res_susensor_activate(d));
-//	}
-//	d = addASULedIndicator("su/led_orange", &ledindicatorconfig, &led_orange);
-//	if(d != NULL){
-//		setResource(d, res_susensor_activate(d));
-//	}
-	d = addASULedIndicator("su/led_yellow", &ledindicatorconfig, &led_yellow);
+	d = addASULedIndicator("su/led_yellow", yellow_led_setting, &led_yellow);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}
-	d = addASUPulseInputRelay(PULSE_SENSOR, &pulseconfig);
+	d = addASUPulseInputRelay(PULSE_SENSOR, pulseCounter_settings);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}
-	d = addASUMainsDetector(MAINSDETECT_ACTUATOR, &mainsdetectconfig);
+	d = addASUMainsDetector(MAINSDETECT_ACTUATOR, mainsDetector_settings);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}
-	d = addASUButtonSensor(BUTTON_SENSOR, &pushbuttonconfig);
+	d = addASUButtonSensor(BUTTON_SENSOR, pushbutton_settings);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}
-	d = addASUTimerDevice(TIMER_DEVICE, &timerconfig);
+	d = addASUTimerDevice(TIMER_DEVICE, timer_settings);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}

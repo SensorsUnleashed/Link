@@ -82,6 +82,7 @@ enum susensors_configcmd {
 	SUSENSORS_RANGEMAX_GET,
 	SUSENSORS_RANGEMIN_GET,
 	SUSENSORS_EVENTSTATE_GET,
+	SUSENSORS_STORE_SETUP,
 };
 
 enum susensors_event_cmd {
@@ -111,10 +112,38 @@ struct ledRuntime {
 /* Used for extra material needed for using a sensor */
 struct extras{
 	int type;
-	void* config;
-	void* runtime;
-	void* resource;
+	void* config;		//Will contain struct resourceconf file
+	void* setting;		//Will contain stored settings
+	void* runtime;		//Will contain current runtime data
+	void* resource;		//Will contain the build resource from the config file
 };
+
+struct storedSetting_s {
+	/* Pseudocode:
+	 *
+	 * Eg. We want a toggle button to signal when its on, but not off
+	 * AboveEventAt = 1
+	 * BelowEventAt = 2	//Off because its outside button spec
+	 * changeEvent  = 2	//Off because its outside button spec
+	 *
+	 * We want a temperature sensor to feed us with updates with every 0.5C
+	 * AboveEvent = 9999	//Off because its outside button spec
+	 * BelowEvent = 9999	//Off because its outside button spec
+	 * changeEvent = 0.5	//For every 0.5C low/high from last event, a new will be emitted
+	 *
+	 * It is possible to have all event types enabled together, but its the subscriber that
+	 * will need to detect which event was fired. They are all alike.
+	 * */
+	uint8_t cfs_file_id;		///The file id of the setup file from flash
+	uint8_t eventsActive;		///Generation of events on or Off (Determined by eventstate)
+	cmp_object_t AboveEventAt;	///When resource crosses this line from low to high give an event (>=)
+	cmp_object_t BelowEventAt;	///When resource crosses this line from high to low give an event (<=)
+    cmp_object_t ChangeEvent;	///When value has changed more than changeEvent + lastevent value <>= value
+
+    cmp_object_t RangeMin;		///What is the minimum value this device can read
+    cmp_object_t RangeMax;		///What is the maximum value this device can read
+};
+typedef struct storedSetting_s settings_t;
 
 struct susensors_sensor {
 	struct susensors_sensor* next;
@@ -132,8 +161,6 @@ struct susensors_sensor {
 	int (* eventhandler)		(struct susensors_sensor* this, int len, uint8_t* payload);
 
 	eventhandler_ptr (* setEventhandlers)	(struct susensors_sensor* this, int8_t trigger);
-
-	//notification_callback_t notification_callback;
 
 	/* Get/set device suconfig (common to all devices) */
 	int (* suconfig)  			(struct susensors_sensor* this, int type, void* data);

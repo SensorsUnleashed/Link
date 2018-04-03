@@ -50,7 +50,7 @@
 #include "sys/process.h"
 #include "susensorcommon.h"
 #include "board.h"
-
+#include "deviceSetup.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -61,28 +61,6 @@ struct resourceconf pushbuttonconfig = {
 		.version = 1,
 		.flags = METHOD_GET | METHOD_PUT | IS_OBSERVABLE | HAS_SUB_RESOURCES,
 		.max_pollinterval = 2,
-		.eventsActive = BelowEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-
 		.unit = "",
 		.spec = "Push button; OFF=0, ON=1, TOGGLE=2",
 		.type = BUTTON_SENSOR,
@@ -157,16 +135,16 @@ btn_callback(uint8_t port, uint8_t pin)
     if(get(thisptr, BUTTON_SENSOR_VALUE_TYPE_LEVEL, NULL) == BUTTON_SENSOR_PRESSED_LEVEL) {
       ctimer_set(&press_counter, press_duration, duration_exceeded_callback,
                  NULL);
-      if(((struct resourceconf*)(thisptr->data.config))->eventsActive & BelowEventActive)
+      if(((settings_t*)(thisptr->data.setting))->eventsActive & BelowEventActive)
     	  susensors_changed(thisptr, SUSENSORS_BELOW_EVENT);
     } else {
       ctimer_stop(&press_counter);
-      if(((struct resourceconf*)(thisptr->data.config))->eventsActive & AboveEventActive)
+      if(((settings_t*)(thisptr->data.setting))->eventsActive & AboveEventActive)
     	  susensors_changed(thisptr, SUSENSORS_ABOVE_EVENT);
     }
   }
 
-  if(((struct resourceconf*)(thisptr->data.config))->eventsActive & ChangeEventActive)
+  if(((settings_t*)(thisptr->data.setting))->eventsActive & ChangeEventActive)
 	  susensors_changed(thisptr, SUSENSORS_CHANGE_EVENT);
 }
 /*---------------------------------------------------------------------------*/
@@ -221,7 +199,10 @@ static int configure(struct susensors_sensor* this, int type, int value)
   return 1;
 }
 
-susensors_sensor_t* addASUButtonSensor(const char* name, struct resourceconf* config){
+susensors_sensor_t* addASUButtonSensor(const char* name, settings_t* settings){
+
+	if(deviceSetupGet(name, settings, &default_pushbutton_settings) != 0) return 0;
+
 	susensors_sensor_t d;
 	d.type = (char*)name;
 	d.status = get;
@@ -229,7 +210,8 @@ susensors_sensor_t* addASUButtonSensor(const char* name, struct resourceconf* co
 	d.configure = configure;
 	d.eventhandler = NULL;
 	d.suconfig = suconfig;
-	d.data.config = config;
+	d.data.config = &pushbuttonconfig;
+	d.data.setting = settings;
 
 	d.setEventhandlers = NULL;
 

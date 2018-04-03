@@ -35,6 +35,7 @@
 #include "dev/ioc.h"
 #include "dev/leds.h"
 #include "board.h"
+#include "deviceSetup.h"
 
 /*---------------------------------------------------------------------------*/
 #define RELAY_PORT_BASE          GPIO_PORT_TO_BASE(RELAY_PORT)
@@ -50,33 +51,11 @@ int noofrelays = 0;
 
 typedef enum su_basic_actions su_relay_actions;
 
-struct resourceconf relayconfigs = {
+struct resourceconf relayconfig = {
 		.resolution = 1,
 		.version = 1,
 		.flags = METHOD_GET | METHOD_PUT | IS_OBSERVABLE | HAS_SUB_RESOURCES,
 		.max_pollinterval = 2,
-		.eventsActive = AboveEventActive | BelowEventActive | ChangeEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-
 		.unit = "",
 		.spec = "Relay output control OFF=0, ON=1, TOGGLE=2",
 		.type = RELAY_ACTUATOR,
@@ -254,7 +233,10 @@ static eventhandler_ptr setEventhandlers(struct susensors_sensor* this, int8_t t
 	return getFunctionPtr(trigger);
 }
 
-susensors_sensor_t* addASURelay(const char* name, struct resourceconf* config){
+susensors_sensor_t* addASURelay(const char* name, settings_t* settings){
+
+	if(deviceSetupGet(name, settings, &default_relaysetting) != 0) return 0;
+
 	susensors_sensor_t d;
 	d.type = (char*)name;
 	d.status = get;
@@ -262,7 +244,8 @@ susensors_sensor_t* addASURelay(const char* name, struct resourceconf* config){
 	d.configure = configure;
 	d.eventhandler = eventHandler;
 	d.suconfig = suconfig;
-	d.data.config = config;
+	d.data.config = &relayconfig;
+	d.data.setting = settings;
 
 	d.setEventhandlers = setEventhandlers;
 

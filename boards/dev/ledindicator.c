@@ -32,7 +32,7 @@
 #include "ledindicator.h"
 #include "contiki.h"
 #include "dev/leds.h"
-
+#include "deviceSetup.h"
 #include "susensorcommon.h"
 #include "board.h"
 
@@ -43,28 +43,6 @@ struct resourceconf ledindicatorconfig = {
 		.version = 1,
 		.flags = METHOD_GET | METHOD_PUT | IS_OBSERVABLE | HAS_SUB_RESOURCES,
 		.max_pollinterval = 2,
-		.eventsActive = ChangeEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT16,
-				.as.u8 = 0
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT16,
-				.as.u8 = 1
-		},
-
 		.unit = "",
 		.spec = "LED indicator",
 		//.type = LED_INDICATOR,
@@ -171,7 +149,10 @@ static eventhandler_ptr setEventhandlers(struct susensors_sensor* this, int8_t t
 	return getFunctionPtr(triggers);
 }
 
-susensors_sensor_t* addASULedIndicator(const char* name, struct resourceconf* config, struct ledRuntime* extra){
+susensors_sensor_t* addASULedIndicator(const char* name, settings_t* settings, struct ledRuntime* extra){
+
+	if(deviceSetupGet(name, settings, &default_yellow_led_setting) != 0) return 0;
+
 	susensors_sensor_t d;
 	d.type = (char*)name;
 	d.status = get;
@@ -179,14 +160,15 @@ susensors_sensor_t* addASULedIndicator(const char* name, struct resourceconf* co
 	d.configure = configure;
 	d.eventhandler = eventHandler;
 	d.suconfig = suconfig;
+	d.data.setting = settings;
 
 	d.setEventhandlers = setEventhandlers;
 
-	d.data.config = config;
+	d.data.config = &ledindicatorconfig;
 	d.data.runtime = extra;
 	d.data.runtime = (void*) extra;
 
-	config->type = (char*)name;
+	ledindicatorconfig.type = (char*)name;
 
 	return addSUDevices(&d);
 }

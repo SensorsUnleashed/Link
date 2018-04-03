@@ -39,6 +39,7 @@
 #include "dev/gpio.h"
 #include "dev/ioc.h"
 #include "dev/leds.h"
+#include "deviceSetup.h"
 
 #define MAINSDETECT_PORT_BASE          GPIO_PORT_TO_BASE(MAINSDETECT_PORT)
 #define MAINSDETECT_PIN_MASK           GPIO_PIN_MASK(MAINSDETECT_PIN)
@@ -60,28 +61,6 @@ struct resourceconf mainsdetectconfig = {
 		.version = 1,
 		.flags = METHOD_GET | METHOD_PUT | IS_OBSERVABLE | HAS_SUB_RESOURCES,
 		.max_pollinterval = 2,
-		.eventsActive = AboveEventActive | BelowEventActive | ChangeEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-
 		.unit = "",
 		.spec = "Detect if mains is present or not",
 		.type = MAINSDETECT_ACTUATOR,
@@ -258,7 +237,10 @@ static int eventHandler(struct susensors_sensor* this, int len, uint8_t* payload
 	return 0;
 }
 
-susensors_sensor_t* addASUMainsDetector(const char* name, struct resourceconf* config){
+susensors_sensor_t* addASUMainsDetector(const char* name, settings_t* settings){
+
+	if(deviceSetupGet(name, settings, &default_mainsDetector_settings) != 0) return 0;
+
 	susensors_sensor_t d;
 	d.type = (char*)name;
 	d.status = get;
@@ -266,7 +248,8 @@ susensors_sensor_t* addASUMainsDetector(const char* name, struct resourceconf* c
 	d.configure = configure;
 	d.eventhandler = eventHandler;
 	d.suconfig = suconfig;
-	d.data.config = config;
+	d.data.config = &mainsdetectconfig;
+	d.data.setting = settings;
 
 	d.setEventhandlers = NULL;	//TODO: Implement this
 

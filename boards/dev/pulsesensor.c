@@ -47,7 +47,7 @@
 #include "dev/gptimer.h"
 #include "dev/gpio.h"
 #include "nvic.h"
-
+#include "deviceSetup.h"
 #include "susensorcommon.h"
 
 #define PULSE_PORT            GPIO_A_NUM
@@ -64,28 +64,6 @@ struct resourceconf pulseconfig = {
 		.version = 1,		//Q22.10
 		.flags = METHOD_GET | METHOD_PUT | IS_OBSERVABLE | HAS_SUB_RESOURCES,			//Flags - which handle do we serve: Get/Post/PUT/Delete
 		.max_pollinterval = 30, 					//How often can you ask for a new reading
-
-		.eventsActive = ChangeEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT16,
-		     	.as.u16 = 1000
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT16,
-		     	.as.u16 = 0
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT16,
-				.as.u16 = 500
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT16,
-				.as.u16 = 0
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT16,
-				.as.u16 = 60000
-		},
 		.unit = "W",
 		.spec = "This is a pulse counter, counting 10000 pulses/kwh",				//Human readable spec of the sensor
 		.type = PULSE_SENSOR,
@@ -124,7 +102,7 @@ static int set(struct susensors_sensor* this, int type, void* data)
 
 static int configure(struct susensors_sensor* this, int type, int value)
 {
-	struct resourceconf* config = (struct resourceconf*)(this->data.config);
+	settings_t* config = this->data.setting;
 	switch(type) {
 	case SUSENSORS_HW_INIT:
 
@@ -211,7 +189,10 @@ static int eventHandler(struct susensors_sensor* this, int len, uint8_t* payload
 	return 0;
 }
 
-susensors_sensor_t* addASUPulseInputRelay(const char* name, struct resourceconf* config){
+susensors_sensor_t* addASUPulseInputRelay(const char* name, settings_t* settings){
+
+	if(deviceSetupGet(name, settings, &default_pulseCounter_settings) != 0) return 0;
+
 	susensors_sensor_t d;
 	d.type = (char*)name;
 	d.status = get;
@@ -219,7 +200,8 @@ susensors_sensor_t* addASUPulseInputRelay(const char* name, struct resourceconf*
 	d.configure = configure;
 	d.eventhandler = eventHandler;
 	d.suconfig = suconfig;
-	d.data.config = config;
+	d.data.config = &pulseconfig;
+	d.data.setting = settings;
 
 	d.setEventhandlers = NULL;
 

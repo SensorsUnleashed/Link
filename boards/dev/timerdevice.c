@@ -7,7 +7,7 @@
 #include "timerdevice.h"
 #include "susensorcommon.h"
 #include "ctimer.h"
-
+#include "deviceSetup.h"
 /*
  * The timer device can be used to trigger another device - delayed
  *
@@ -20,28 +20,6 @@ struct resourceconf timerconfig = {
 		.version = 1,
 		.flags = METHOD_GET | METHOD_PUT | IS_OBSERVABLE | HAS_SUB_RESOURCES,
 		.max_pollinterval = 2,
-		.eventsActive = AboveEventActive | BelowEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT32,
-				.as.u32 = 60
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT32,
-				.as.u32 = 2
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT32,
-				.as.u32 = 2
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT32,
-				.as.u32 = 1
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT32,
-				.as.u32 = 30000000,	//Seconds (347,2 days)
-		},
-
 		.unit = "",
 		.spec = "Timer device; STOP=0, START=1, RESETSTART=2",
 		.type = TIMER_DEVICE,
@@ -84,7 +62,7 @@ static int get (susensors_sensor_t* this, int type, void* data){
 static int set (susensors_sensor_t* this, int type, void* data){
 
 	struct timerRuntime* tr = this->data.runtime;
-	struct resourceconf* r = this->data.config;
+	settings_t* r = this->data.setting;
 	int enabled = tr->enabled;
 	int ret = 1;
 
@@ -115,7 +93,7 @@ static int set (susensors_sensor_t* this, int type, void* data){
 
 static int setNextTimeout(susensors_sensor_t* this){
 
-	struct resourceconf* r = this->data.config;
+	settings_t* r = this->data.setting;
 	struct timerRuntime* tr = this->data.runtime;
 
 	clock_time_t interval = 0;
@@ -218,7 +196,10 @@ static eventhandler_ptr setEventhandlers(struct susensors_sensor* this, int8_t t
 }
 
 
-susensors_sensor_t* addASUTimerDevice(const char* name, struct resourceconf* config){
+susensors_sensor_t* addASUTimerDevice(const char* name, settings_t* settings){
+
+	if(deviceSetupGet(name, settings, &default_timer_settings) != 0) return 0;
+
 	susensors_sensor_t d;
 	d.type = (char*)name;
 	d.status = get;
@@ -226,7 +207,8 @@ susensors_sensor_t* addASUTimerDevice(const char* name, struct resourceconf* con
 	d.configure = configure;
 	d.eventhandler = NULL;
 	d.suconfig = suconfig;
-	d.data.config = config;
+	d.data.config = &timerconfig;
+	d.data.setting = settings;
 	d.data.runtime = &runtimeData;
 
 	d.setEventhandlers = setEventhandlers;

@@ -36,12 +36,13 @@
  *      Author: omn
  */
 #include "susensorcommon.h"
+#include "deviceSetup.h"
 
 
 int suconfig(struct susensors_sensor* this, int type, void* data){
 
 	int ret = 1;
-	struct resourceconf* config = (struct resourceconf*)this->data.config;
+	settings_t* setting = this->data.setting;
 	enum susensors_configcmd cmd = (enum susensors_configcmd)type;
 	if(cmd == SUSENSORS_EVENTSETUP_SET){
 
@@ -67,8 +68,8 @@ int suconfig(struct susensors_sensor* this, int type, void* data){
 		/* Read the AboveEventAt object */
 		if(cp_decodeObject((uint8_t*)payload + len, &newval, &bufindex) == 0){
 			len += bufindex;
-			if(newval.type == config->AboveEventAt.type){
-				config->AboveEventAt = newval;
+			if(newval.type == setting->AboveEventAt.type){
+				setting->AboveEventAt = newval;
 			}
 			else{
 				return 1;
@@ -81,8 +82,8 @@ int suconfig(struct susensors_sensor* this, int type, void* data){
 		/* Read the BelowEventAt object */
 		if(cp_decodeObject((uint8_t*)payload + len, &newval, &bufindex) == 0){
 			len += bufindex;
-			if(newval.type == config->BelowEventAt.type){
-				config->BelowEventAt = newval;
+			if(newval.type == setting->BelowEventAt.type){
+				setting->BelowEventAt = newval;
 			}
 			else{
 				return 2;
@@ -94,8 +95,8 @@ int suconfig(struct susensors_sensor* this, int type, void* data){
 		/* Read the ChangeEvent object */
 		if(cp_decodeObject((uint8_t*)payload + len, &newval, &bufindex) == 0){
 			len += bufindex;
-			if(newval.type == config->ChangeEvent.type){
-				config->ChangeEvent = newval;
+			if(newval.type == setting->ChangeEvent.type){
+				setting->ChangeEvent = newval;
 			}
 			else{
 				return 3;
@@ -108,7 +109,7 @@ int suconfig(struct susensors_sensor* this, int type, void* data){
 		if(cp_decodeObject((uint8_t*)payload + len, &newval, &bufindex) == 0){
 			len += bufindex;
 			if(newval.type == CMP_TYPE_UINT8){
-				config->eventsActive = newval.as.u8;
+				setting->eventsActive = newval.as.u8;
 			}
 			else{
 				return 4;
@@ -123,45 +124,48 @@ int suconfig(struct susensors_sensor* this, int type, void* data){
 		uint8_t* bufptr = (uint8_t*)data;
 		cmp_object_t eventsActive;
 		eventsActive.type = CMP_TYPE_UINT8;
-		eventsActive.as.u8 = config->eventsActive;
+		eventsActive.as.u8 = setting->eventsActive;
 
-		bufptr += cp_encodeObject(bufptr, &config->AboveEventAt);
-		bufptr += cp_encodeObject(bufptr, &config->BelowEventAt);
-		bufptr += cp_encodeObject(bufptr, &config->ChangeEvent);
+		bufptr += cp_encodeObject(bufptr, &setting->AboveEventAt);
+		bufptr += cp_encodeObject(bufptr, &setting->BelowEventAt);
+		bufptr += cp_encodeObject(bufptr, &setting->ChangeEvent);
 		bufptr += cp_encodeObject(bufptr, &eventsActive);
 
 		ret = (uint8_t*)data - bufptr;
 	}
 	else if(cmd == SUSENSORS_CEVENT_GET){
 		cmp_object_t* obj = (cmp_object_t*)data;
-		*obj = config->ChangeEvent;
+		*obj = setting->ChangeEvent;
 		ret = 0;
 	}
 	else if(cmd == SUSENSORS_AEVENT_GET){
 		cmp_object_t* obj = (cmp_object_t*)data;
-		*obj = config->AboveEventAt;
+		*obj = setting->AboveEventAt;
 		ret = 0;
 	}
 	else if(cmd == SUSENSORS_BEVENT_GET){
 		cmp_object_t* obj = (cmp_object_t*)data;
-		*obj = config->BelowEventAt;
+		*obj = setting->BelowEventAt;
 		ret = 0;
 	}
 	else if(cmd == SUSENSORS_RANGEMAX_GET){
 		cmp_object_t* obj = (cmp_object_t*)data;
-		*obj = config->RangeMax;
+		*obj = setting->RangeMax;
 		ret = 0;
 	}
 	else if(cmd == SUSENSORS_RANGEMIN_GET){
 		cmp_object_t* obj = (cmp_object_t*)data;
-		*obj = config->RangeMin;
+		*obj = setting->RangeMin;
 		ret = 0;
 	}
 	else if(cmd == SUSENSORS_EVENTSTATE_GET){
 		cmp_object_t* obj = (cmp_object_t*)data;
 		obj->type = CMP_TYPE_UINT8;
-		obj->as.u8 = config->eventsActive;
+		obj->as.u8 = setting->eventsActive;
 		ret = 0;
+	}
+	else if(cmd == SUSENSORS_STORE_SETUP){
+		deviceSetupSave(this->type, setting);
 	}
 	return ret;
 }
@@ -181,7 +185,7 @@ void setResource(struct susensors_sensor* this, resource_t* res){
  * @return
  */
 void setEventU8(struct susensors_sensor* this, int dir, uint8_t step){
-	struct resourceconf* c = (struct resourceconf*)(this->data.config);
+	settings_t* c = this->data.setting;
 	struct relayRuntime* r = (struct relayRuntime*)(this->data.runtime);
 	uint8_t event = 0;
 
@@ -219,7 +223,7 @@ void setEventU8(struct susensors_sensor* this, int dir, uint8_t step){
 }
 
 void setEventU16(struct susensors_sensor* this, int dir, uint16_t step){
-	struct resourceconf* c = (struct resourceconf*)(this->data.config);
+	settings_t* c = this->data.setting;
 	struct relayRuntime* r = (struct relayRuntime*)(this->data.runtime);
 	uint8_t event = 0;
 
@@ -257,7 +261,7 @@ void setEventU16(struct susensors_sensor* this, int dir, uint16_t step){
 }
 
 void setEventU32(struct susensors_sensor* this, int dir, uint32_t step){
-	struct resourceconf* c = (struct resourceconf*)(this->data.config);
+	settings_t* c = this->data.setting;
 	struct relayRuntime* r = (struct relayRuntime*)(this->data.runtime);
 	uint8_t event = 0;
 

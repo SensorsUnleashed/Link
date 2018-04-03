@@ -52,9 +52,7 @@
 /*---------------------------------------------------------------------------*/
 #include "susensors.h"
 
-extern struct resourceconf pushbuttonconfig;
-
-susensors_sensor_t* addASUButtonSensor(const char* name, struct resourceconf* config);
+susensors_sensor_t* addASUButtonSensor(const char* name, settings_t* setting);
 
 /*---------------------------------------------------------------------------*/
 

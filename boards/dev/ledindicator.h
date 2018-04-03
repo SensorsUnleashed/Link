@@ -43,8 +43,6 @@
 
 #define LED_INDICATOR "su/ledindicator"
 
-extern struct resourceconf ledindicatorconfig;
-
-susensors_sensor_t* addASULedIndicator(const char* name, struct resourceconf* config, struct ledRuntime* extra);
+susensors_sensor_t* addASULedIndicator(const char* name, settings_t* settings, struct ledRuntime* extra);
 
 #endif /* SENSORSUNLEASHED_DEV_LEDINDICATOR_H_ */
