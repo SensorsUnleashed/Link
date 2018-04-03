@@ -71,6 +71,30 @@ struct resourceconf pulseconfig = {
 		//uint8_t notation;		//Qm.f => MMMM.FFFF	eg. Q1.29 = int32_t with 1 integer bit and 29 fraction bits, Q
 };
 
+static const settings_t default_pulseCounter_settings = {
+		.eventsActive = ChangeEventActive,
+		.AboveEventAt = {
+				.type = CMP_TYPE_UINT16,
+				.as.u16 = 1000
+		},
+		.BelowEventAt = {
+				.type = CMP_TYPE_UINT16,
+				.as.u16 = 0
+		},
+		.ChangeEvent = {
+				.type = CMP_TYPE_UINT16,
+				.as.u16 = 500
+		},
+		.RangeMin = {
+				.type = CMP_TYPE_UINT16,
+				.as.u16 = 0
+		},
+		.RangeMax = {
+				.type = CMP_TYPE_UINT16,
+				.as.u16 = 60000
+		},
+};
+
 /**
  * \brief Retrieves the current upcounted value of the pulse input
  * 		  The counter is reset for every read.
@@ -191,7 +215,7 @@ static int eventHandler(struct susensors_sensor* this, int len, uint8_t* payload
 
 susensors_sensor_t* addASUPulseInputRelay(const char* name, settings_t* settings){
 
-	if(deviceSetupGet(name, settings, &default_pulseCounter_settings) != 0) return 0;
+	if(deviceSetupGet(name, settings, &default_pulseCounter_settings) < 0) return 0;
 
 	susensors_sensor_t d;
 	d.type = (char*)name;

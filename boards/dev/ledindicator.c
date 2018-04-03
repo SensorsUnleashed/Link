@@ -49,6 +49,31 @@ struct resourceconf ledindicatorconfig = {
 		.attr = "title=\"LED indicator\" ;rt=\"Indicator\"",
 };
 
+static const settings_t default_led_setting = {
+		.eventsActive = ChangeEventActive,
+		.AboveEventAt = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 1
+		},
+		.BelowEventAt = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 0
+		},
+		.ChangeEvent = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 1
+		},
+		.RangeMin = {
+				.type = CMP_TYPE_UINT16,
+				.as.u8 = 0
+		},
+		.RangeMax = {
+				.type = CMP_TYPE_UINT16,
+				.as.u8 = 1
+		},
+};
+
+
 static int set(struct susensors_sensor* this, int type, void* data){
 	int ret = 1;
 
@@ -151,7 +176,7 @@ static eventhandler_ptr setEventhandlers(struct susensors_sensor* this, int8_t t
 
 susensors_sensor_t* addASULedIndicator(const char* name, settings_t* settings, struct ledRuntime* extra){
 
-	if(deviceSetupGet(name, settings, &default_yellow_led_setting) != 0) return 0;
+	if(deviceSetupGet(name, settings, &default_led_setting) < 0) return 0;
 
 	susensors_sensor_t d;
 	d.type = (char*)name;

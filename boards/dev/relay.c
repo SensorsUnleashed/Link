@@ -62,6 +62,29 @@ struct resourceconf relayconfig = {
 		.attr = "title=\"Relay output\" ;rt=\"Control\"",
 };
 
+static const settings_t default_relaysetting = {
+		.eventsActive = AboveEventActive | BelowEventActive | ChangeEventActive,
+		.AboveEventAt = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 1
+		},
+		.BelowEventAt = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 0
+		},
+		.ChangeEvent = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 1
+		},
+		.RangeMin = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 0
+		},
+		.RangeMax = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 1
+		},
+};
 
 /*---------------------------------------------------------------------------*/
 
@@ -235,7 +258,7 @@ static eventhandler_ptr setEventhandlers(struct susensors_sensor* this, int8_t t
 
 susensors_sensor_t* addASURelay(const char* name, settings_t* settings){
 
-	if(deviceSetupGet(name, settings, &default_relaysetting) != 0) return 0;
+	if(deviceSetupGet(name, settings, &default_relaysetting) < 0) return 0;
 
 	susensors_sensor_t d;
 	d.type = (char*)name;

@@ -39,7 +39,7 @@ struct ledRuntime led_yellow = { LEDS_YELLOW };
 extern  resource_t  res_sysinfo;
 
 process_event_t systemchange;
-MEMB(settings_memb, settings_t, 20);
+MEMB(settings_memb, settings_t, 10);
 
 PROCESS_THREAD(device_process, ev, data)
 {
@@ -48,6 +48,7 @@ PROCESS_THREAD(device_process, ev, data)
 	PROCESS_BEGIN();
 
 	initSUSensors();
+
 	settings_t* relaysetting = (settings_t*)memb_alloc(&settings_memb);
 	settings_t* yellow_led_setting = (settings_t*)memb_alloc(&settings_memb);
 	settings_t* pulseCounter_settings = (settings_t*)memb_alloc(&settings_memb);

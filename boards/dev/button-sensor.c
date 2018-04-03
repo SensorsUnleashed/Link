@@ -67,6 +67,30 @@ struct resourceconf pushbuttonconfig = {
 		.attr = "title=\"Relay output\" ;rt=\"Control\"",
 };
 
+static const settings_t default_pushbutton_settings = {
+		.eventsActive = BelowEventActive,
+		.AboveEventAt = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 1
+		},
+		.BelowEventAt = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 0
+		},
+		.ChangeEvent = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 1
+		},
+		.RangeMin = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 0
+		},
+		.RangeMax = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 1
+		},
+};
+
 /*---------------------------------------------------------------------------*/
 #define BUTTON_USER_PORT_BASE  GPIO_PORT_TO_BASE(BUTTON_USER_PORT)
 #define BUTTON_USER_PIN_MASK   GPIO_PIN_MASK(BUTTON_USER_PIN)
@@ -201,7 +225,7 @@ static int configure(struct susensors_sensor* this, int type, int value)
 
 susensors_sensor_t* addASUButtonSensor(const char* name, settings_t* settings){
 
-	if(deviceSetupGet(name, settings, &default_pushbutton_settings) != 0) return 0;
+	if(deviceSetupGet(name, settings, &default_pushbutton_settings) < 0) return 0;
 
 	susensors_sensor_t d;
 	d.type = (char*)name;

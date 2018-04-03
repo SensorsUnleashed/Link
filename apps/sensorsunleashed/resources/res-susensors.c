@@ -124,6 +124,9 @@ res_susensor_gethandler(void *request, void *response, uint8_t *buffer, uint16_t
 				REST.set_response_payload(response, buffer, len);
 				return;
 			}
+			else if(strncmp(str, "saveSetup", len) == 0){
+				len = sensor->suconfig(sensor, SUSENSORS_STORE_SETUP, &obj) == 0;
+			}
 			else if(strncmp(str, "pairings", len) == 0){
 
 				int16_t ret = pairing_getlist(sensor, buffer, preferred_size, offset);

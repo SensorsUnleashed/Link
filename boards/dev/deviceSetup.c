@@ -11,151 +11,6 @@
 #include "cfs-coffee-arch.h"
 #include "deviceSetup.h"
 
-/* Store in flash */
-settings_t default_relaysetting = {
-		.eventsActive = AboveEventActive | BelowEventActive | ChangeEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-};
-
-settings_t default_yellow_led_setting = {
-		.eventsActive = ChangeEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT16,
-				.as.u8 = 0
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT16,
-				.as.u8 = 1
-		},
-};
-
-settings_t default_pulseCounter_settings = {
-		.eventsActive = ChangeEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT16,
-				.as.u16 = 1000
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT16,
-				.as.u16 = 0
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT16,
-				.as.u16 = 500
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT16,
-				.as.u16 = 0
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT16,
-				.as.u16 = 60000
-		},
-};
-
-settings_t default_mainsDetector_settings = {
-		.eventsActive = AboveEventActive | BelowEventActive | ChangeEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-};
-
-settings_t default_pushbutton_settings = {
-		.eventsActive = BelowEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 0
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT8,
-				.as.u8 = 1
-		},
-};
-
-settings_t default_timer_settings = {
-		.eventsActive = AboveEventActive | BelowEventActive,
-		.AboveEventAt = {
-				.type = CMP_TYPE_UINT32,
-				.as.u32 = 60
-		},
-		.BelowEventAt = {
-				.type = CMP_TYPE_UINT32,
-				.as.u32 = 2
-		},
-		.ChangeEvent = {
-				.type = CMP_TYPE_UINT32,
-				.as.u32 = 2
-		},
-		.RangeMin = {
-				.type = CMP_TYPE_UINT32,
-				.as.u32 = 1
-		},
-		.RangeMax = {
-				.type = CMP_TYPE_UINT32,
-				.as.u32 = 30000000,	//Seconds (347,2 days)
-		},
-};
-
 /*
  * return
  * 		 0: Found a file in flash
@@ -218,7 +73,7 @@ static int writeSetup(cmp_ctx_t* cmp, settings_t* setup, uint8_t newid){
  * 		 0: Found a file in flash and uses it
  * 		 1: No file in flash, use the default
  * */
-int deviceSetupGet(const char* devicename, settings_t* setupA, settings_t* defaultsetting){
+int deviceSetupGet(const char* devicename, settings_t* setupA, const settings_t* defaultsetting){
 
 	settings_t setupB;
 	struct file_s read;
@@ -319,7 +174,7 @@ int deviceSetupSave(const char* devicename, settings_t* setup){
 	sprintf(filenameA, "setupA_%s", devicename);
 	sprintf(filenameB, "setupB_%s", devicename);
 
-	write.fd = cfs_open(filenameA, CFS_READ | CFS_WRITE);
+	write.fd = cfs_open(filenameA, CFS_READ);
 	write.offset = 0;
 
 	do{
@@ -336,12 +191,14 @@ int deviceSetupSave(const char* devicename, settings_t* setup){
 		//The current Active file is filenameA, erase and re-write filenameB
 		cfs_remove(filenameB);
 
-		write.fd = cfs_open(filenameB, CFS_READ | CFS_WRITE);
-		write.offset = 0;
 		if(cfs_coffee_reserve(filenameB, 30) != 0) return -1;	//The maximum length is 29 bytes, including overhead
 
+		write.fd = cfs_open(filenameB, CFS_READ | CFS_WRITE);
+		write.offset = 0;
+
+
 		cmp_init(&cmp, &write, NULL, file_writer);
-		if(writeSetup(&cmp, setup, ++setup->cfs_file_id) == 0){
+		if(writeSetup(&cmp, setup, setup->cfs_file_id + 1) == 0){
 			setup->cfs_file_id += 1;
 			cfs_close(write.fd);
 			return 0;
@@ -353,12 +210,13 @@ int deviceSetupSave(const char* devicename, settings_t* setup){
 	//The current Active file is filenameB, erase and re-write filenameA
 	cfs_remove(filenameA);
 
-	write.fd = cfs_open(filenameA, CFS_READ | CFS_WRITE);
-	write.offset = 0;
 	if(cfs_coffee_reserve(filenameA, 30) != 0) return -1;	//The maximum length is 29 bytes, including overhead
 
+	write.fd = cfs_open(filenameA, CFS_READ | CFS_WRITE);
+	write.offset = 0;
+
 	cmp_init(&cmp, &write, NULL, file_writer);
-	if(writeSetup(&cmp, setup, ++setup->cfs_file_id) == 0){
+	if(writeSetup(&cmp, setup, setup->cfs_file_id + 1) == 0){
 		setup->cfs_file_id += 1;
 		cfs_close(write.fd);
 		return 0;

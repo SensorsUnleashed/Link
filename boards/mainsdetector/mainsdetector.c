@@ -28,10 +28,10 @@
 PROCESS(device_process, "SU devicehandler");
 AUTOSTART_PROCESSES(&device_process);
 
-struct ledRuntime led_yellow = { LEDS_YELLOW };
 extern  resource_t  res_sysinfo;
 
 process_event_t systemchange;
+MEMB(settings_memb, settings_t, 1);
 
 PROCESS_THREAD(device_process, ev, data)
 {
@@ -41,8 +41,10 @@ PROCESS_THREAD(device_process, ev, data)
 
 	initSUSensors();
 
+	settings_t* mainsDetector_settings = (settings_t*)memb_alloc(&settings_memb);
+
 	susensors_sensor_t* d;
-	d = addASUMainsDetector(MAINSDETECT_ACTUATOR, &mainsdetectconfig);
+	d = addASUMainsDetector(MAINSDETECT_ACTUATOR, mainsDetector_settings);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}

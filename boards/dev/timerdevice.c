@@ -26,6 +26,31 @@ struct resourceconf timerconfig = {
 		.attr = "title=\"Timer Device\" ;rt=\"Control\"",
 };
 
+static const settings_t default_timer_settings = {
+		.eventsActive = AboveEventActive | BelowEventActive,
+		.AboveEventAt = {
+				.type = CMP_TYPE_UINT32,
+				.as.u32 = 60
+		},
+		.BelowEventAt = {
+				.type = CMP_TYPE_UINT32,
+				.as.u32 = 2
+		},
+		.ChangeEvent = {
+				.type = CMP_TYPE_UINT32,
+				.as.u32 = 2
+		},
+		.RangeMin = {
+				.type = CMP_TYPE_UINT32,
+				.as.u32 = 1
+		},
+		.RangeMax = {
+				.type = CMP_TYPE_UINT32,
+				.as.u32 = 30000000,	//Seconds (347,2 days)
+		},
+};
+
+
 struct timerRuntime {
 	uint8_t enabled;
 	uint8_t hasEvent;
@@ -198,7 +223,7 @@ static eventhandler_ptr setEventhandlers(struct susensors_sensor* this, int8_t t
 
 susensors_sensor_t* addASUTimerDevice(const char* name, settings_t* settings){
 
-	if(deviceSetupGet(name, settings, &default_timer_settings) != 0) return 0;
+	if(deviceSetupGet(name, settings, &default_timer_settings) < 0) return 0;
 
 	susensors_sensor_t d;
 	d.type = (char*)name;

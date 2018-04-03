@@ -166,6 +166,7 @@ int suconfig(struct susensors_sensor* this, int type, void* data){
 	}
 	else if(cmd == SUSENSORS_STORE_SETUP){
 		deviceSetupSave(this->type, setting);
+		ret = 0;
 	}
 	return ret;
 }

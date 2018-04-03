@@ -67,6 +67,29 @@ struct resourceconf mainsdetectconfig = {
 		.attr = "title=\"Mainsdetect\" ;rt=\"Monitor\"",
 };
 
+static const settings_t default_mainsDetector_settings = {
+		.eventsActive = AboveEventActive | BelowEventActive | ChangeEventActive,
+		.AboveEventAt = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 1
+		},
+		.BelowEventAt = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 0
+		},
+		.ChangeEvent = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 1
+		},
+		.RangeMin = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 0
+		},
+		.RangeMax = {
+				.type = CMP_TYPE_UINT8,
+				.as.u8 = 1
+		},
+};
 
 static int get(struct susensors_sensor* this, int type, void* data)
 {
@@ -239,7 +262,7 @@ static int eventHandler(struct susensors_sensor* this, int len, uint8_t* payload
 
 susensors_sensor_t* addASUMainsDetector(const char* name, settings_t* settings){
 
-	if(deviceSetupGet(name, settings, &default_mainsDetector_settings) != 0) return 0;
+	if(deviceSetupGet(name, settings, &default_mainsDetector_settings) < 0) return 0;
 
 	susensors_sensor_t d;
 	d.type = (char*)name;

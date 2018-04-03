@@ -36,6 +36,7 @@ struct ledRuntime led_yellow = { LEDS_YELLOW };
 extern  resource_t  res_sysinfo;
 
 process_event_t systemchange;
+MEMB(settings_memb, settings_t, 4);
 
 PROCESS_THREAD(device_process, ev, data)
 {
@@ -45,20 +46,25 @@ PROCESS_THREAD(device_process, ev, data)
 
 	initSUSensors();
 
+	settings_t* relaysetting = (settings_t*)memb_alloc(&settings_memb);
+	settings_t* yellow_led_setting = (settings_t*)memb_alloc(&settings_memb);
+	settings_t* pushbutton_settings = (settings_t*)memb_alloc(&settings_memb);
+	settings_t* timer_settings = (settings_t*)memb_alloc(&settings_memb);
+
 	susensors_sensor_t* d;
-	d = addASURelay(RELAY_ACTUATOR, &relaysetting);
+	d = addASURelay(RELAY_ACTUATOR, relaysetting);
 	if(d != NULL) {
 		setResource(d, res_susensor_activate(d));
 	}
-	d = addASUButtonSensor(BUTTON_SENSOR, &pushbutton_settings);
+	d = addASUButtonSensor(BUTTON_SENSOR, pushbutton_settings);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}
-	d = addASULedIndicator("su/led_yellow", &yellow_led_setting, &led_yellow);
+	d = addASULedIndicator("su/led_yellow", yellow_led_setting, &led_yellow);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}
-	d = addASUTimerDevice(TIMER_DEVICE, &timer_settings);
+	d = addASUTimerDevice(TIMER_DEVICE, timer_settings);
 	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}
