@@ -2,6 +2,7 @@
 On remote computer add route to the border router
 Add a mask so, that all sensors can be pinged
 ip route add fd00::/64 via fd81:3daa:fb4a:f7ae:d239:72ff:fe4c:b375
+sudo ip route add fd00::/64 via fd81:3daa:fb4a:f7ae:d239:72ff:fe4c:b375
 ping6 fd00::212:4b00:05af:82b7
 
 
@@ -12,6 +13,7 @@ wget -6 "http://[fd00::212:4b00:60d:9aa4]/
 cat index.html
 
 Setup the routing 
+sysctl -w net.ipv6.conf.all.forwarding=1
 ip route add fd00::/64 dev tun0 metric 1
 
 if the global address is gone
