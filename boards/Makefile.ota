@@ -1,0 +1,26 @@
+# TOP for an image placed in top of the flash
+# BOT for an image placed start of flash
+# comment for debugging, with all flash used
+#IMG_TYPE=BOT
+#IMG_TYPE=TOP
+
+IMG_TYPE ?=SUDEBUG
+
+CFLAGS += -DSTARTADDR=$(STARTADDR)
+
+ifeq ($(IMG_TYPE), BOT)
+	SOURCE_LDSCRIPT=$(CONTIKI_CPU)/cc2538-ota.lds
+	STARTADDR=0x204000
+else ifeq ($(IMG_TYPE), TOP)
+	STARTADDR=0x21D000
+	SOURCE_LDSCRIPT=$(CONTIKI_CPU)/cc2538-ota.lds
+endif
+SOURCE_LDSCRIPT ?= $(CONTIKI_CPU)/cc2538.lds
+
+otaprep: all
+ifeq ($(IMG_TYPE), SUDEBUG)
+	@echo "This is a debug image, not fit for OTA."
+else
+	python3 ../../Tools/trailertool.py -E 102400 -V $(VERSION) -A $(STARTADDR) -P $(DEVICE_TYPE) -i $(CONTIKI_PROJECT).bin -o $(CONTIKI_PROJECT).flash
+	python3 ../../Tools/trailertool.py -vV -i $(CONTIKI_PROJECT).flash
+endif
