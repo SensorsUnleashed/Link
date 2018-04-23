@@ -21,6 +21,6 @@ otaprep: all
 ifeq ($(IMG_TYPE), SUDEBUG)
 	@echo "This is a debug image, not fit for OTA."
 else
-	python3 ../../Tools/trailertool.py -E 102400 -V $(VERSION) -A $(STARTADDR) -P $(DEVICE_TYPE) -i $(CONTIKI_PROJECT).bin -o $(CONTIKI_PROJECT).flash
-	python3 ../../Tools/trailertool.py -vV -i $(CONTIKI_PROJECT).flash
+	python3 ../../Tools/trailertool.py -v -E 102400 -V $(VERSION) -A $(STARTADDR) -P $(DEVICE_TYPE) -T $(RADIOTARGET) -i $(CONTIKI_PROJECT).bin -o $(CONTIKI_PROJECT).fl$(shell tr '[:upper:]' '[:lower:]' <<< $(IMG_TYPE))
+	python3 ../../Tools/trailertool.py -vV -i $(CONTIKI_PROJECT).fl$(shell tr '[:upper:]' '[:lower:]' <<< $(IMG_TYPE))
 endif

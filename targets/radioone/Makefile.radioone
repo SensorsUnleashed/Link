@@ -1,5 +1,7 @@
 # Sensors Unleashed RadioOne - cc2538 platform makefile
 
+RADIOTARGET=2
+
 ifndef CONTIKI
   $(error CONTIKI not defined! You must specify where CONTIKI resides!)
 endif

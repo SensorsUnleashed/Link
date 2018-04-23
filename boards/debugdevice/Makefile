@@ -1,6 +1,6 @@
 CONTIKI_PROJECT = debugdevice
 
-VERSION=0.0.3
+VERSION=0.0.5
 DEVICE_TYPE=1
 
 TARGETDIRS += ../../targets
