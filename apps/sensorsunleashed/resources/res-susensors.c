@@ -160,8 +160,6 @@ res_susensor_gethandler(void *request, void *response, uint8_t *buffer, uint16_t
 	}
 }
 
-static uint8_t large_update_store[200] = { 0 };
-
 static void
 res_susensor_puthandler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset){
 
@@ -251,11 +249,13 @@ res_susensor_puthandler(void *request, void *response, uint8_t *buffer, uint16_t
 			}
 			else if(strncmp(str, "join", len) == 0){
 				if((len = REST.get_request_payload(request, (const uint8_t **)&payload))) {
-					if(coap_req->block1_num * coap_req->block1_size + len <= sizeof(large_update_store)) {
-
 						if(pairing_assembleMessage(payload, len, coap_req->block1_num) == 0){
 							REST.set_response_status(response, REST.status.CHANGED);
 							coap_set_header_block1(response, coap_req->block1_num, 0, coap_req->block1_size);
+						}
+						else {
+							REST.set_response_status(response, REST.status.REQUEST_ENTITY_TOO_LARGE);
+							return;
 						}
 
 						if(coap_req->block1_more == 0){
@@ -300,11 +300,6 @@ res_susensor_puthandler(void *request, void *response, uint8_t *buffer, uint16_t
 								}
 							}
 						}
-					}
-					else {
-						REST.set_response_status(response, REST.status.REQUEST_ENTITY_TOO_LARGE);
-						return;
-					}
 				}
 			}/* join */
 		}/* len > 0 */
