@@ -12,18 +12,6 @@ void __set_MSP(uint32_t topOfMainStack)
 			"BX  lr     \n\t" : : "r" (topOfMainStack));
 }
 
-//static void
-//busywait(uint32_t ms)
-//{
-//  uint32_t i;
-//  /*  uint32_t n; */
-//
-//  while(ms--) {
-//    for(i = 0; i < 3037; i++) {
-//      __asm ("nop");
-//    }
-//  }
-//}
 /**
  * Return non-zero if button is congured and pressed.
  */
@@ -60,7 +48,6 @@ is_button_pressed(uint8_t radioid)
 			ioc_set_over(port, pin, IOC_OVERRIDE_DIS);
 			init = 1;
 		}
-		//butval = GPIO_READ_PIN(gpio_base, gpio_mask);
 		butval = GPIO_READ_PIN(gpio_base, gpio_mask);
 	}
 
@@ -127,55 +114,44 @@ int main(void){
 		//Both is present, boot the newest one
 		if(botimg->version_major != topimg->version_major){
 			if(botimg->version_major > topimg->version_major){
-				//boot_image(botimg);
 				active = botimg;
 			}
 			else{
-				//boot_image(topimg);
 				active = topimg;
 			}
 		}
 		else if(botimg->version_minor != topimg->version_minor){
 			if(botimg->version_minor > topimg->version_minor){
-				//boot_image(botimg);
 				active = botimg;
 			}
 			else{
-				//boot_image(topimg);
 				active = topimg;
 			}
 		}
 		else if(botimg->version_dev != topimg->version_dev){
 			if(botimg->version_dev > topimg->version_dev){
-				//boot_image(botimg);
 				active = botimg;
 			}
 			else{
-				//boot_image(topimg);
 				active = topimg;
 			}
 		}
 		else if(*botdate != *topdate){
 			if(*botdate > *topdate){
-				//boot_image(botimg);
 				active = botimg;
 			}
 			else{
-				//boot_image(topimg);
 				active = topimg;
 			}
 		}
 		else{	//The images in both sectors are identical - use the bot one
-			//boot_image(botimg);
 			active = botimg;
 		}
 	}
 	else if(botok){
-		//boot_image(botimg);
 		active = botimg;
 	}
 	else if(topok){
-		//boot_image(topimg);
 		active = topimg;
 	}
 
