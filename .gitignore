@@ -16,3 +16,4 @@
 *.bin
 /boards/relayboard/relayboard.radioone
 /boards/relayboard/relayboard.su-cc2538-1
+*.flash
