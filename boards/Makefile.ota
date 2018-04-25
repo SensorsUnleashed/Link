@@ -17,6 +17,7 @@ else ifeq ($(IMG_TYPE), TOP)
 endif
 SOURCE_LDSCRIPT ?= $(CONTIKI_CPU)/cc2538.lds
 
+#e.g: make otaprep TARGET=radioone IMG_TYPE=TOP
 otaprep: all
 ifeq ($(IMG_TYPE), SUDEBUG)
 	@echo "This is a debug image, not fit for OTA."
