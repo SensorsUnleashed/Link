@@ -17,3 +17,11 @@
 /boards/relayboard/relayboard.radioone
 /boards/relayboard/relayboard.su-cc2538-1
 *.flash
+/boards/debugdevice/debugdevice.flbot
+/boards/debugdevice/debugdevice.fltop
+/boards/debugdevice/debugdevice.su-cc2538-1
+/boards/debugdevice/obj_su-cc2538-1/cc2538.ld
+/boards/mainsdetector/mainsdetector.flbot
+/boards/mainsdetector/mainsdetector.fltop
+/boards/relayboard/relayboard.flbot
+/boards/relayboard/relayboard.fltop
