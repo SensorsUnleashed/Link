@@ -42,7 +42,6 @@
 #include "susensors.h"
 #include "dev/sys-ctrl.h"
 #include "dev/ioc.h"
-//#include "../../apps/uartsensors/uart_protocolhandler.h"
 #include "rest-engine.h"
 #include "dev/gptimer.h"
 #include "dev/gpio.h"
@@ -50,8 +49,10 @@
 #include "deviceSetup.h"
 #include "susensorcommon.h"
 
+//TODO: Make these configurable
 #define PULSE_PORT            GPIO_A_NUM
-#define PULSE_PIN             3
+//#define PULSE_PIN             3		//target = su-cc2538-1
+#define PULSE_PIN             6			//taget = radioOne
 
 PROCESS(pulseinput_int_process, "Pulse input interrupt process handler");
 
@@ -83,7 +84,7 @@ static const settings_t default_pulseCounter_settings = {
 		},
 		.ChangeEvent = {
 				.type = CMP_TYPE_UINT16,
-				.as.u16 = 500
+				.as.u16 = 200
 		},
 		.RangeMin = {
 				.type = CMP_TYPE_UINT16,
@@ -108,9 +109,8 @@ static int get(struct susensors_sensor* this, int type, void* data)
 	cmp_object_t* obj = (cmp_object_t*)data;
 
 	if((enum up_parameter) type == ActualValue){
-		struct relayRuntime* r = (struct relayRuntime*)this->data.runtime;
 		obj->type = CMP_TYPE_UINT16;
-		obj->as.u16 = (uint16_t) REG(GPT_1_BASE + GPTIMER_TAR) + r->LastValue.as.u16;
+		obj->as.u16 = (uint16_t) REG(GPT_1_BASE + GPTIMER_TAR);
 		ret = 0;
 	}
 	return ret;
@@ -173,7 +173,7 @@ static int configure(struct susensors_sensor* this, int type, int value)
 
 		/* 6. Load the timer start value into the GPTM Timer n Interval Load (GPTIMER_TnILR) registe */
 		/* When the timer is counting up, this register sets the upper bound for the timeout event. */
-		REG(GPT_1_BASE + GPTIMER_TAILR) = config->ChangeEvent.as.u16;	//When reached, its starts over from 0
+		REG(GPT_1_BASE + GPTIMER_TAILR) = 0xFFFF; //config->ChangeEvent.as.u16;	//When reached, its starts over from 0
 
 		/* 7. Load the event count into the GPTM Timer n Match (GPTIMER_TnMATCHR) register. */
 		REG(GPT_1_BASE + GPTIMER_TAMATCHR) = config->ChangeEvent.as.u16;
@@ -267,9 +267,23 @@ PROCESS_THREAD(pulseinput_int_process, ev, data)
      PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 
      /* For now we only have one pulse counter, so we dont have to know the pulsecounter instance */
+     settings_t* config = pulsesensor->data.setting;
      struct relayRuntime* r = (struct relayRuntime*)pulsesensor->data.runtime;
-     r->LastValue.as.u16 += REG(GPT_1_BASE + GPTIMER_TAILR);
-     setEventU16(pulsesensor, 1, REG(GPT_1_BASE + GPTIMER_TAILR));
+     r->LastValue.as.u16 = (uint16_t) REG(GPT_1_BASE + GPTIMER_TAR);
+
+     //Handle roll over
+     uint16_t step = 0;
+     if(r->LastValue.as.u16 > r->LastEventValue.as.u16){
+    	 step = r->LastValue.as.u16 - r->LastEventValue.as.u16;
+     }
+     else{
+    	 step = (0xFFFF - r->LastEventValue.as.u16) + r->LastValue.as.u16;
+     }
+     setEventU16(pulsesensor, 1, step);
+
+     //TODO: Set to the next event, could be below, above or change.
+     //Set the next timermatch changeEvent higher.
+     REG(GPT_1_BASE + GPTIMER_TAMATCHR) += config->ChangeEvent.as.u16;
   }
 
   PROCESS_END();
