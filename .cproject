@@ -611,7 +611,7 @@
 					<folderInfo id="0.1625467547.219522802.1195938618.963079784.1784998906.1048635463." name="/" resourcePath="">
 						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.718015183" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
 							<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.718015183.445744174" name=""/>
-							<builder buildPath="${workspace_loc:/SensorsUnleashed_NG/boards/pulsecountboard}" cleanBuildTarget="clean TARGET=radioone" id="org.eclipse.cdt.build.core.settings.default.builder.247096614" incrementalBuildTarget="all TARGET=radioone" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<builder buildPath="${workspace_loc:/SensorsUnleashed_NG/boards/pulsecountboard}" cleanBuildTarget="clean TARGET=radioone" id="org.eclipse.cdt.build.core.settings.default.builder.247096614" incrementalBuildTarget="all TARGET=radioone" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1048531151" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.1673186709" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.741517609" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
@@ -659,6 +659,7 @@
 		<configuration configurationName="Sensniff">
 			<resource resourceType="PROJECT" workspacePath="/SensorsUnleashed_NG"/>
 		</configuration>
+		<configuration configurationName="Pulsecountboard RadioOne"/>
 		<configuration configurationName="Relayboard RadioOne"/>
 		<configuration configurationName="Debugdevice RadioOne"/>
 		<configuration configurationName="Default">

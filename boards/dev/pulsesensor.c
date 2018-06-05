@@ -92,7 +92,7 @@ static const settings_t default_pulseCounter_settings = {
 		},
 		.RangeMax = {
 				.type = CMP_TYPE_UINT16,
-				.as.u16 = 60000
+				.as.u16 = 65400
 		},
 };
 
@@ -110,7 +110,7 @@ static int get(struct susensors_sensor* this, int type, void* data)
 
 	if((enum up_parameter) type == ActualValue){
 		obj->type = CMP_TYPE_UINT16;
-		obj->as.u16 = (uint16_t) REG(GPT_1_BASE + GPTIMER_TAR);
+		obj->as.u16 = (uint16_t) REG(GPT_1_BASE + GPTIMER_TAR) + 1;
 		ret = 0;
 	}
 	return ret;
@@ -148,6 +148,7 @@ static int configure(struct susensors_sensor* this, int type, int value)
 
 		/* Disable any pull ups or the like */
 		//ioc_set_over(PULSE_PORT, PULSE_PIN, IOC_OVERRIDE_DIS);
+		//ioc_set_over(PULSE_PORT, PULSE_PIN, IOC_OVERRIDE_PUE);
 
 		/* From user manual p. 329 */
 		/* 1. Ensure the timer is disabled (the TAEN bit is cleared) before making any changes. */
@@ -173,12 +174,13 @@ static int configure(struct susensors_sensor* this, int type, int value)
 
 		/* 6. Load the timer start value into the GPTM Timer n Interval Load (GPTIMER_TnILR) registe */
 		/* When the timer is counting up, this register sets the upper bound for the timeout event. */
-		REG(GPT_1_BASE + GPTIMER_TAILR) = 0xFFFF; //config->ChangeEvent.as.u16;	//When reached, its starts over from 0
+		REG(GPT_1_BASE + GPTIMER_TAILR) = config->RangeMax.as.u16 - 1; //config->ChangeEvent.as.u16;	//When reached, its starts over from 0
 
 		/* 7. Load the event count into the GPTM Timer n Match (GPTIMER_TnMATCHR) register. */
-		REG(GPT_1_BASE + GPTIMER_TAMATCHR) = config->ChangeEvent.as.u16;
+		REG(GPT_1_BASE + GPTIMER_TAMATCHR) = config->ChangeEvent.as.u16 - 1;
 
 		/* 8. If interrupts are required, set the CnMIM bit in the GPTM Interrupt Mask (GPTIMER_IMR) register. */
+		//REG(GPT_1_BASE + GPTIMER_IMR) |= (GPTIMER_IMR_CAMIM + GPTIMER_IMR_TATOIM);
 		REG(GPT_1_BASE + GPTIMER_IMR) |= GPTIMER_IMR_CAMIM;
 
 		process_start(&pulseinput_int_process, NULL);
@@ -187,6 +189,7 @@ static int configure(struct susensors_sensor* this, int type, int value)
 		if(value){	//Activate
 			if(!REG(GPT_1_BASE + GPTIMER_CTL) & GPTIMER_CTL_TAEN){
 				/* Enable interrupts */
+				//REG(GPT_1_BASE + GPTIMER_IMR) |= (GPTIMER_IMR_CAMIM + GPTIMER_IMR_TATOIM);
 				REG(GPT_1_BASE + GPTIMER_IMR) |= GPTIMER_IMR_CAMIM;
 				NVIC_ClearPendingIRQ(GPT1A_IRQn);
 				NVIC_EnableIRQ(GPT1A_IRQn);
@@ -198,6 +201,7 @@ static int configure(struct susensors_sensor* this, int type, int value)
 				REG(GPT_1_BASE + GPTIMER_CTL) &= ~GPTIMER_CTL_TAEN;	//disable pulse counter
 
 				/* Disable interrupts */
+				//REG(GPT_1_BASE + GPTIMER_IMR) &= ~(GPTIMER_IMR_CAMIM + GPTIMER_IMR_TATOIM);
 				REG(GPT_1_BASE + GPTIMER_IMR) &= ~GPTIMER_IMR_CAMIM;
 				NVIC_DisableIRQ(GPT1A_IRQn);
 			}
@@ -247,45 +251,52 @@ susensors_sensor_t* addASUPulseInputRelay(const char* name, settings_t* settings
  *
  */
 
-/**
- * ISR handler
- */
 void pulscounter_isr(){
+
+	if(REG(GPT_1_BASE + GPTIMER_MIS) & GPTIMER_MIS_CAMMIS){
+		settings_t* config = pulsesensor->data.setting;
+		volatile uint32_t cmpreg;
+
+		//Set the next compare to the next interval.
+		cmpreg = REG_H(GPT_1_BASE + GPTIMER_TAMATCHR);
+		cmpreg += config->ChangeEvent.as.u16;
+		cmpreg = cmpreg >= config->RangeMax.as.u16 ? cmpreg - config->RangeMax.as.u16 : cmpreg;
+		REG(GPT_1_BASE + GPTIMER_TAMATCHR) = (uint16_t)cmpreg;
+	}
 	process_poll(&pulseinput_int_process);
 
-	//both cases, the status flags are cleared by writing a 1 to the CnMCINT bit of the GPTM Interrupt Clear (GPTIMER_ICR) register.
-	REG(GPT_1_BASE + GPTIMER_ICR) |= GPTIMER_ICR_CAMCINT;
+//	//both cases, the status flags are cleared by writing a 1 to the CnMCINT bit of the GPTM Interrupt Clear (GPTIMER_ICR) register.
+	REG(GPT_1_BASE + GPTIMER_ICR) |= (GPTIMER_IMR_CAMIM + GPTIMER_IMR_TATOIM);
 }
 
 PROCESS_THREAD(pulseinput_int_process, ev, data)
 {
-  PROCESS_EXITHANDLER();
-  PROCESS_BEGIN();
+	PROCESS_EXITHANDLER();
+	PROCESS_BEGIN();
 
-  while(1) {
+	while(1) {
 
-     PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 
-     /* For now we only have one pulse counter, so we dont have to know the pulsecounter instance */
-     settings_t* config = pulsesensor->data.setting;
-     struct relayRuntime* r = (struct relayRuntime*)pulsesensor->data.runtime;
-     r->LastValue.as.u16 = (uint16_t) REG(GPT_1_BASE + GPTIMER_TAR);
+		/* For now we only have one pulse counter, so we dont have to know the pulsecounter instance */
+		struct relayRuntime* r = (struct relayRuntime*)pulsesensor->data.runtime;
+		settings_t* config = pulsesensor->data.setting;
 
-     //Handle roll over
-     uint16_t step = 0;
-     if(r->LastValue.as.u16 > r->LastEventValue.as.u16){
-    	 step = r->LastValue.as.u16 - r->LastEventValue.as.u16;
-     }
-     else{
-    	 step = (0xFFFF - r->LastEventValue.as.u16) + r->LastValue.as.u16;
-     }
-     setEventU16(pulsesensor, 1, step);
+		uint16_t val = (uint16_t) REG(GPT_1_BASE + GPTIMER_TAR) + 1;
+		uint16_t step = 0;
 
-     //TODO: Set to the next event, could be below, above or change.
-     //Set the next timermatch changeEvent higher.
-     REG(GPT_1_BASE + GPTIMER_TAMATCHR) += config->ChangeEvent.as.u16;
-  }
+		if(r->LastValue.as.u16 > val){	//Roll over
+			step = config->RangeMax.as.u16 - r->LastValue.as.u16 + val;
+		}
+		else{
+			step = val - r->LastValue.as.u16;
+		}
 
-  PROCESS_END();
+		r->LastValue.as.u16 = val;
+
+		setEventU16(pulsesensor, 1, step);
+	}
+
+	PROCESS_END();
 }
 
