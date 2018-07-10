@@ -74,6 +74,9 @@
 #define MAINSDETECT_CONF_PIN	7
 #define MAINSDETECT_CONF_PORT	GPIO_A_NUM
 
+#define RELAY_CONF_PIN			5
+#define RELAY_PORT				GPIO_A_NUM
+
 /*---------------------------------------------------------------------------*/
 /* Some files include leds.h before us, so we need to get rid of defaults in
  * leds.h before we provide correct definitions */
@@ -194,6 +197,18 @@
 /** RX pin SPI1 */
 #define SPI1_RX_PIN             5
 #endif  /* #if SPI1_IN_USE */
+/** @} */
+/*---------------------------------------------------------------------------*/
+/**
+ * \name I2C configuration
+ *
+ * These values configure which CC2538 pins to use for the I2C lines.
+ * @{
+ */
+#define I2C_SCL_PORT             GPIO_B_NUM
+#define I2C_SCL_PIN              3
+#define I2C_SDA_PORT             GPIO_B_NUM
+#define I2C_SDA_PIN              4
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**

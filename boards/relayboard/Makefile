@@ -1,6 +1,6 @@
 CONTIKI_PROJECT = relayboard
 
-VERSION=0.0.1
+VERSION=0.0.2
 DEVICE_TYPE=3
 
 TARGETDIRS += ../../targets

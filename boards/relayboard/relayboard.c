@@ -11,6 +11,7 @@
 #include "susensorcommon.h"
 #include "button-sensor.h"
 #include "relay.h"
+#include "mainsdetect.h"
 #include "ledindicator.h"
 #include "timerdevice.h"
 #include "resources/res-susensors.h"
@@ -36,7 +37,7 @@ struct ledRuntime led_yellow = { LEDS_YELLOW };
 extern  resource_t  res_sysinfo;
 
 process_event_t systemchange;
-MEMB(settings_memb, settings_t, 4);
+MEMB(settings_memb, settings_t, 5);
 
 PROCESS_THREAD(device_process, ev, data)
 {
@@ -47,6 +48,7 @@ PROCESS_THREAD(device_process, ev, data)
 	initSUSensors();
 
 	settings_t* relaysetting = (settings_t*)memb_alloc(&settings_memb);
+	settings_t* mainsDetector_settings = (settings_t*)memb_alloc(&settings_memb);
 	settings_t* yellow_led_setting = (settings_t*)memb_alloc(&settings_memb);
 	settings_t* pushbutton_settings = (settings_t*)memb_alloc(&settings_memb);
 	settings_t* timer_settings = (settings_t*)memb_alloc(&settings_memb);
@@ -54,6 +56,10 @@ PROCESS_THREAD(device_process, ev, data)
 	susensors_sensor_t* d;
 	d = addASURelay(RELAY_ACTUATOR, relaysetting);
 	if(d != NULL) {
+		setResource(d, res_susensor_activate(d));
+	}
+	d = addASUMainsDetector(MAINSDETECT_ACTUATOR, mainsDetector_settings);
+	if(d != NULL){
 		setResource(d, res_susensor_activate(d));
 	}
 	d = addASUButtonSensor(BUTTON_SENSOR, pushbutton_settings);
