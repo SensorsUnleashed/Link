@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, Ole Nissen.
+ * Copyright (c) 2018, Ole Nissen.
  *  All rights reserved. 
  *  
  *  Redistribution and use in source and binary forms, with or without 
@@ -29,12 +29,6 @@
  *
  * This file is part of the Sensors Unleashed project
  *******************************************************************************/
-/*
- * res-sensors.h
- *
- *  Created on: 11/12/2016
- *      Author: omn
- */
 
 #ifndef SENSORSUNLEASHED_RESOURCES_RES_SUSENSORS_H_
 #define SENSORSUNLEASHED_RESOURCES_RES_SUSENSORS_H_

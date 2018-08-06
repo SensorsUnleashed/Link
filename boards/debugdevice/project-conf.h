@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, Ole Nissen.
+ * Copyright (c) 2018, Ole Nissen.
  *  All rights reserved. 
  *  
  *  Redistribution and use in source and binary forms, with or without 

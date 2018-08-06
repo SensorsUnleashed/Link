@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, Ole Nissen.
+ * Copyright (c) 2018, Ole Nissen.
  *  All rights reserved. 
  *  
  *  Redistribution and use in source and binary forms, with or without 
@@ -29,12 +29,6 @@
  *
  * This file is part of the Sensors Unleashed project
  *******************************************************************************/
-/*
- * coap_proxy_protocolhandler.h
- *
- *  Created on: 18/09/2016
- *      Author: omn
- */
 
 #ifndef COAP_UART_DEVICE_HANDLER_COAP_PROXY_PROTOCOLHANDLER_H_
 #define COAP_UART_DEVICE_HANDLER_COAP_PROXY_PROTOCOLHANDLER_H_

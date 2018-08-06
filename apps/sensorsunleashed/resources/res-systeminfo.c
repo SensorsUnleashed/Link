@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, Ole Nissen.
+ * Copyright (c) 2018, Ole Nissen.
  *  All rights reserved. 
  *  
  *  Redistribution and use in source and binary forms, with or without 
@@ -29,12 +29,7 @@
  *
  * This file is part of the Sensors Unleashed project
  *******************************************************************************/
-/*
- * res-systeminfo.c
- *
- *  Created on: 07/10/2016
- *      Author: omn
- */
+
 #include <string.h>
 #include "contiki.h"
 #include "rest-engine.h"

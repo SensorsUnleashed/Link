@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, Ole Nissen.
+ * Copyright (c) 2018, Ole Nissen.
  *  All rights reserved. 
  *  
  *  Redistribution and use in source and binary forms, with or without 
@@ -29,12 +29,6 @@
  *
  * This file is part of the Sensors Unleashed project
  *******************************************************************************/
-/*
- * ledindicator.h
- *
- *  Created on: 04/01/2017
- *      Author: omn
- */
 
 #ifndef SENSORSUNLEASHED_DEV_LEDINDICATOR_H_
 #define SENSORSUNLEASHED_DEV_LEDINDICATOR_H_

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, Ole Nissen.
+ * Copyright (c) 2018, Ole Nissen.
  *  All rights reserved. 
  *  
  *  Redistribution and use in source and binary forms, with or without 
@@ -29,12 +29,6 @@
  *
  * This file is part of the Sensors Unleashed project
  *******************************************************************************/
-/*
- * pulsesensor.c
- *
- *  Created on: 06/12/2016
- *      Author: omn
- */
 
 #include "pulsesensor.h"
 #include "contiki.h"
@@ -265,7 +259,7 @@ void pulscounter_isr(){
 	}
 	process_poll(&pulseinput_int_process);
 
-//	//both cases, the status flags are cleared by writing a 1 to the CnMCINT bit of the GPTM Interrupt Clear (GPTIMER_ICR) register.
+	//both cases, the status flags are cleared by writing a 1 to the CnMCINT bit of the GPTM Interrupt Clear (GPTIMER_ICR) register.
 	REG(GPT_1_BASE + GPTIMER_ICR) |= (GPTIMER_IMR_CAMIM + GPTIMER_IMR_TATOIM);
 }
 
