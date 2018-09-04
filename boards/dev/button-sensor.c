@@ -232,7 +232,7 @@ susensors_sensor_t* addASUButtonSensor(const char* name, settings_t* settings){
 	d.status = get;
 	d.value = NULL;
 	d.configure = configure;
-	d.eventhandler = NULL;
+	d.eventhandler = testevent;
 	d.suconfig = suconfig;
 	d.data.config = &pushbuttonconfig;
 	d.data.setting = settings;

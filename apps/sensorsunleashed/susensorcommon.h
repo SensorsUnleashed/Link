@@ -41,4 +41,6 @@ void setResource(struct susensors_sensor* this, resource_t* res);
 void setEventU8(struct susensors_sensor* this, int dir, uint8_t step);
 void setEventU16(struct susensors_sensor* this, int dir, uint16_t step);
 void setEventU32(struct susensors_sensor* this, int dir, uint32_t step);
+
+int testevent(struct susensors_sensor* this, int len, uint8_t* payload);
 #endif /* SENSORSUNLEASHED_DEV_SUSENSORCOMMON_H_ */

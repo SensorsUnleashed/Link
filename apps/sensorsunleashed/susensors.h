@@ -45,9 +45,9 @@
 #define DEVICES_MAX		10
 
 #define SUSENSORS_NO_EVENT		0
-#define SUSENSORS_ABOVE_EVENT	(1 << 1)
-#define SUSENSORS_BELOW_EVENT	(1 << 2)
-#define SUSENSORS_CHANGE_EVENT	(1 << 3)
+#define SUSENSORS_ABOVE_EVENT	(1 << 1)	//2
+#define SUSENSORS_BELOW_EVENT	(1 << 2)	//4
+#define SUSENSORS_CHANGE_EVENT	(1 << 3)	//8
 #define SUSENSORS_NEW_PAIR		(1 << 4)
 
 extern const char* strAbove;
@@ -158,7 +158,7 @@ struct susensors_sensor {
 	int (* configure) 			(struct susensors_sensor* this, int type, int value);
 	/* Get device values */
 	int (* status)    			(struct susensors_sensor* this, int type, void* data);
-	/* Received an event from another device - handle it */
+	/* Force emitting an event - used for testing from the configuration tool */
 	int (* eventhandler)		(struct susensors_sensor* this, int len, uint8_t* payload);
 
 	eventhandler_ptr (* setEventhandlers)	(struct susensors_sensor* this, int8_t trigger);

@@ -256,7 +256,7 @@ susensors_sensor_t* addASUTimerDevice(const char* name, settings_t* settings){
 	d.status = get;
 	d.value = set;
 	d.configure = configure;
-	d.eventhandler = NULL;
+	d.eventhandler = testevent;
 	d.suconfig = suconfig;
 	d.data.config = &timerconfig;
 	d.data.setting = settings;

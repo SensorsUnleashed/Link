@@ -110,30 +110,6 @@ int get(struct susensors_sensor* this, int type, void* data){
 	return ret;
 }
 
-/* An event was received from another device - now act on it */
-static int eventHandler(struct susensors_sensor* this, int len, uint8_t* payload){
-	uint8_t event;
-	uint32_t parselen = len;
-	cmp_object_t eventval;
-	if(cp_decodeU8(payload, &event, &parselen) != 0) return 1;
-	payload += parselen;
-	parselen = len - parselen;
-	if(cp_decodeObject(payload, &eventval, &parselen) != 0) return 2;
-
-	if(event & AboveEventActive){
-		this->value(this, setOn, NULL);
-	}
-	else if(event & BelowEventActive){
-		this->value(this, setOff, NULL);
-	}
-
-	if(event & ChangeEventActive){
-		this->value(this, setToggle, NULL);
-	}
-
-	return 0;
-}
-
 static int  setOnhandler(struct susensors_sensor* this, int len, const uint8_t* payload){
 	this->value(this, setOn, NULL);
 	return 0;
@@ -184,7 +160,7 @@ susensors_sensor_t* addASULedIndicator(const char* name, settings_t* settings, s
 	d.status = get;
 	d.value = set;
 	d.configure = configure;
-	d.eventhandler = eventHandler;
+	d.eventhandler = testevent;
 	d.suconfig = suconfig;
 	d.data.setting = settings;
 

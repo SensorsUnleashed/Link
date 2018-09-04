@@ -293,3 +293,30 @@ void setEventU32(struct susensors_sensor* this, int dir, uint32_t step){
 		susensors_changed(this, event);
 	}
 }
+
+int testevent(struct susensors_sensor* this, int len, uint8_t* payload){
+	uint8_t event, testevent = 0;
+	uint32_t parselen = len;
+	cmp_object_t eventval;
+	if(cp_decodeU8(payload, &event, &parselen) != 0) return 1;
+	payload += parselen;
+	parselen = len - parselen;
+	if(cp_decodeObject(payload, &eventval, &parselen) != 0) return 2;
+
+	settings_t* c = this->data.setting;
+
+	if((event & SUSENSORS_ABOVE_EVENT) && (c->eventsActive & AboveEventActive)){
+		testevent |= SUSENSORS_ABOVE_EVENT;
+	}
+	else if((event & SUSENSORS_BELOW_EVENT) && (c->eventsActive & BelowEventActive)){
+		testevent |= SUSENSORS_BELOW_EVENT;
+	}
+	else if((event & SUSENSORS_CHANGE_EVENT) && (c->eventsActive & ChangeEventActive)){
+		testevent |= SUSENSORS_CHANGE_EVENT;
+	}
+
+	if(testevent){
+		susensors_changed(this, testevent);
+	}
+	return 0;
+}

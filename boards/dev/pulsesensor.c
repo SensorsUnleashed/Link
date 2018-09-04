@@ -205,12 +205,6 @@ static int configure(struct susensors_sensor* this, int type, int value)
 	return 0;
 }
 
-/* An event was received from another device - now act on it */
-static int eventHandler(struct susensors_sensor* this, int len, uint8_t* payload){
-	//TODO: Consider what the pulse counter should if someone posts an event to it.
-	return 0;
-}
-
 susensors_sensor_t* addASUPulseInputRelay(const char* name, settings_t* settings){
 
 	if(deviceSetupGet(name, settings, &default_pulseCounter_settings) < 0) return 0;
@@ -220,7 +214,7 @@ susensors_sensor_t* addASUPulseInputRelay(const char* name, settings_t* settings
 	d.status = get;
 	d.value = set;
 	d.configure = configure;
-	d.eventhandler = eventHandler;
+	d.eventhandler = testevent;
 	d.suconfig = suconfig;
 	d.data.config = &pulseconfig;
 	d.data.setting = settings;
