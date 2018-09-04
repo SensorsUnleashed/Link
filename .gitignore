@@ -25,3 +25,10 @@
 /boards/mainsdetector/mainsdetector.fltop
 /boards/relayboard/relayboard.flbot
 /boards/relayboard/relayboard.fltop
+/boards/pulsecountboard/obj_radioone/cc2538.ld
+/boards/pulsecountboard/pulsecountboard.flbot
+/boards/pulsecountboard/pulsecountboard.fltop
+/boards/pulsecountboard/pulsecountboard.radioone
+/bootloader/bootloader.odd
+/bootloader/cc2538-image.ld
+/bootloader/obj/cc2538-image.ld
